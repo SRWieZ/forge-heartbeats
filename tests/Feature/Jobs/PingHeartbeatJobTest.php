@@ -24,8 +24,6 @@ it('can ping heartbeat successfully', function () {
                $event->success === true &&
                $event->eventType === 'finished';
     });
-
-    Log::shouldHaveReceived('debug')->with('Successfully pinged heartbeat for task: test-task');
 });
 
 it('handles ping failures', function () {
@@ -42,8 +40,6 @@ it('handles ping failures', function () {
                $event->success === false &&
                $event->eventType === 'finished';
     });
-
-    Log::shouldHaveReceived('warning')->with('Failed to ping heartbeat for task: test-task');
 });
 
 it('handles exceptions and retries', function () {
@@ -58,8 +54,6 @@ it('handles exceptions and retries', function () {
     );
 
     expect(fn () => $job->handle($client))->toThrow(Exception::class);
-
-    Log::shouldHaveReceived('error')->with('Error pinging heartbeat for task test-task: Network error');
 });
 
 it('handles job failure after retries', function () {

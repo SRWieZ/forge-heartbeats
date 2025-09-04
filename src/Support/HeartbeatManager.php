@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
+use SRWieZ\ForgeHeartbeats\Enums\FrequencyEnum;
 
 class HeartbeatManager
 {
@@ -122,28 +123,28 @@ class HeartbeatManager
     {
         $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
 
-        // Convert cron to frequency (simplified)
-        $frequency = $this->cronToFrequency($task->cronExpression);
+        $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
         return $this->forgeClient->createHeartbeat(
             name: $task->getDisplayName(),
             gracePeriod: $gracePeriod,
-            frequency: $frequency,
-            customFrequency: $task->cronExpression
+            frequency: $frequency->value,
+            customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
     }
 
     private function updateHeartbeatForTask(ScheduledTask $task, Heartbeat $heartbeat): Heartbeat
     {
         $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-        $frequency = $this->cronToFrequency($task->cronExpression);
+
+        $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
         return $this->forgeClient->updateHeartbeat(
             heartbeatId: $heartbeat->id,
             name: $task->getDisplayName(),
             gracePeriod: $gracePeriod,
-            frequency: $frequency,
-            customFrequency: $task->cronExpression
+            frequency: $frequency->value,
+            customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
     }
 
@@ -152,30 +153,20 @@ class HeartbeatManager
         $expectedGracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
         $expectedName = $task->getDisplayName();
 
-        return $heartbeat->name !== $expectedName
-            || $heartbeat->gracePeriod !== $expectedGracePeriod
-            || $heartbeat->customFrequency !== $task->cronExpression;
-    }
-
-    private function cronToFrequency(string $cronExpression): int
-    {
-        // Simple mapping of common cron patterns to Forge frequency constants
-        // This is a simplified version - in a real implementation you might want more sophisticated parsing
-
-        if ($cronExpression === '* * * * *') {
-            return 1; // Every minute
+        if ($heartbeat->name !== $expectedName || $heartbeat->gracePeriod !== $expectedGracePeriod) {
+            return true;
         }
 
-        if (preg_match('/^\d+ \* \* \* \*$/', $cronExpression)) {
-            return 2; // Hourly
-        }
+        // Check frequency configuration
+        $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
-        if (preg_match('/^\d+ \d+ \* \* \*$/', $cronExpression)) {
-            return 3; // Daily
+        if ($frequency === FrequencyEnum::CUSTOM) {
+            // Custom frequency - check if frequency is -1 and custom_frequency matches
+            return $heartbeat->frequency !== $frequency->value || $heartbeat->customFrequency !== $task->cronExpression;
+        } else {
+            // Standard frequency - check if frequency matches and custom_frequency is null
+            return $heartbeat->frequency !== $frequency->value || $heartbeat->customFrequency !== null;
         }
-
-        // Default to custom frequency
-        return 1;
     }
 
     private function clearHeartbeatsCache(): void
