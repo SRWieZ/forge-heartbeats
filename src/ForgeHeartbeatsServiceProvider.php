@@ -17,7 +17,7 @@ use SRWieZ\ForgeHeartbeats\Commands\VerifyCommand;
 use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Http\ForgeClient;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
-use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskSubscriber;
+use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskListener;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
@@ -62,7 +62,7 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
             ScheduledTaskFinished::class,
             ScheduledBackgroundTaskFinished::class,
             ScheduledTaskFailed::class,
-        ], ScheduledTaskSubscriber::class);
+        ], ScheduledTaskListener::class);
 
         return $this;
     }

@@ -13,7 +13,7 @@ use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 
-class ScheduledTaskSubscriber
+class ScheduledTaskListener
 {
     public function __construct(
         private HeartbeatManager $heartbeatManager
@@ -32,16 +32,6 @@ class ScheduledTaskSubscriber
     public function handleTaskFailed(ScheduledTaskFailed $event): void
     {
         $this->pingHeartbeat($event->task->command, 'failed');
-    }
-
-    public function subscribe(Dispatcher $events): array
-    {
-        return [
-            ScheduledTaskStarting::class => 'handleTaskStarting',
-            ScheduledTaskFinished::class => 'handleTaskFinished',
-            ScheduledTaskFailed::class => 'handleTaskFailed',
-            ScheduledTaskSkipped::class => 'handleTaskSkipped',
-        ];
     }
 
     private function pingHeartbeat(string $command, string $eventType): void

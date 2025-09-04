@@ -33,34 +33,19 @@ class PingHeartbeatJob implements ShouldQueue
 
     public function handle(ForgeClientInterface $forgeClient): void
     {
-        try {
-            $success = $forgeClient->pingHeartbeat($this->pingUrl);
+        $success = $forgeClient->pingHeartbeat($this->pingUrl);
 
-            if ($success) {
-                Log::debug("Successfully pinged heartbeat for task: {$this->taskName}");
-            } else {
-                Log::warning("Failed to ping heartbeat for task: {$this->taskName}");
-            }
-
-            // Dispatch event for monitoring/logging purposes
-            HeartbeatPinged::dispatch(
-                $this->taskName,
-                $this->pingUrl,
-                $success,
-                $this->eventType
-            );
-        } catch (\Throwable $e) {
-            Log::error("Error pinging heartbeat for task {$this->taskName}: " . $e->getMessage());
-
-            // Re-throw to trigger retry mechanism
-            throw $e;
-        }
+        // Dispatch event for monitoring/logging purposes
+        HeartbeatPinged::dispatch(
+            $this->taskName,
+            $this->pingUrl,
+            $success,
+            $this->eventType
+        );
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error("Failed to ping heartbeat for task {$this->taskName} after {$this->tries} attempts: " . $exception->getMessage());
-
         HeartbeatPinged::dispatch(
             $this->taskName,
             $this->pingUrl,
