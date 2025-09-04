@@ -32,7 +32,7 @@
         "pestphp/pest-plugin-laravel": "^2.3|^3.0",
         "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^1.10",
-        "larastan/larastan": "^2.8",
+        "larastan/larastan": "^2.8|^3.0",
         "laravel/pint": "^1.13"
     },
     "autoload": {
