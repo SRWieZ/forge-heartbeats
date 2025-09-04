@@ -22,9 +22,9 @@ class SyncCommand extends Command
         try {
             $this->info('🔍 Analyzing scheduled tasks...');
 
-            $tasks = $scheduleAnalyzer->getNamedTasks();
-            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks();
-            $duplicateTasks = $scheduleAnalyzer->getDuplicateTasks();
+            $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
+            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
+            $duplicateTasks = $scheduleAnalyzer->getDuplicateTasks($heartbeatManager);
 
             if (empty($tasks)) {
                 $this->warn('⚠️  No scheduled tasks found to monitor.');
@@ -32,7 +32,7 @@ class SyncCommand extends Command
                 return self::SUCCESS;
             }
 
-            $this->info("📋 Found {count($tasks)} scheduled task(s) to monitor");
+            $this->info('📋 Found ' . count($tasks) . ' scheduled task(s) to monitor');
 
             if (! empty($unnamedTasks)) {
                 $this->warn('⚠️  Found ' . count($unnamedTasks) . ' unnamed task(s) that cannot be monitored');

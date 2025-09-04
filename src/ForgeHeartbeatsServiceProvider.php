@@ -2,10 +2,9 @@
 
 namespace SRWieZ\ForgeHeartbeats;
 
+use Illuminate\Console\Events\ScheduledBackgroundTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
-use Illuminate\Console\Events\ScheduledTaskSkipped;
-use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Console\Scheduling\Event as SchedulerEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
@@ -61,6 +60,7 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
     {
         Event::listen([
             ScheduledTaskFinished::class,
+            ScheduledBackgroundTaskFinished::class,
             ScheduledTaskFailed::class,
         ], ScheduledTaskSubscriber::class);
 

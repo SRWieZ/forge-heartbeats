@@ -37,6 +37,13 @@ class HeartbeatManager
         $this->taskMetadata[$taskId]['skip_monitoring'] = $skip;
     }
 
+    public function getTaskMetadata(Event $event): array
+    {
+        $taskId = spl_object_hash($event);
+
+        return $this->taskMetadata[$taskId] ?? [];
+    }
+
     /**
      * Get all heartbeats from Forge (with caching).
      *
@@ -57,7 +64,7 @@ class HeartbeatManager
      */
     public function syncHeartbeats(bool $keepOldHeartbeats = false): array
     {
-        $tasks = $this->scheduleAnalyzer->getNamedTasks();
+        $tasks = $this->scheduleAnalyzer->getNamedTasks($this);
         $heartbeats = $this->getHeartbeats();
 
         $matchResult = $this->taskMatcher->match($tasks, $heartbeats);

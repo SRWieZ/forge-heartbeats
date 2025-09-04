@@ -18,19 +18,23 @@ it('can create scheduled task from scheduler event', function () {
 });
 
 it('extracts command name correctly', function () {
-    // Test the static method directly with command strings
-    expect(ScheduledTask::fromSchedulerEvent((object) [
-        'command' => '/usr/bin/php /var/www/artisan inspire',
-        'expression' => '0 * * * *',
-        'timezone' => null,
-    ])->name)->toBe('inspire');
+    // Create proper mock Event objects
+    $event1 = Mockery::mock(\Illuminate\Console\Scheduling\Event::class);
+    $event1->command = '/usr/bin/php /var/www/artisan inspire';
+    $event1->expression = '0 * * * *';
+    $event1->timezone = null;
 
-    expect(ScheduledTask::fromSchedulerEvent((object) [
-        'command' => 'php artisan queue:work --stop-when-empty',
-        'expression' => '0 * * * *',
-        'timezone' => null,
-    ])->name)->toBe('queue:work');
-})->skip('Need to refactor ScheduledTask::fromSchedulerEvent to work with test objects');
+    $task1 = ScheduledTask::fromSchedulerEvent($event1);
+    expect($task1->name)->toBe('inspire');
+
+    $event2 = Mockery::mock(\Illuminate\Console\Scheduling\Event::class);
+    $event2->command = 'php artisan queue:work --stop-when-empty';
+    $event2->expression = '0 * * * *';
+    $event2->timezone = null;
+
+    $task2 = ScheduledTask::fromSchedulerEvent($event2);
+    expect($task2->name)->toBe('queue:work');
+});
 
 it('can get display name', function () {
     $task1 = new ScheduledTask(

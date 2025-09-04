@@ -17,7 +17,7 @@ class ScheduleAnalyzer
      *
      * @return array<ScheduledTask>
      */
-    public function getMonitorableTasks(): array
+    public function getMonitorableTasks(?HeartbeatManager $heartbeatManager = null): array
     {
         $tasks = [];
 
@@ -26,7 +26,8 @@ class ScheduleAnalyzer
                 continue; // Only monitor command events
             }
 
-            $task = ScheduledTask::fromSchedulerEvent($event);
+            $metadata = $heartbeatManager?->getTaskMetadata($event) ?? [];
+            $task = ScheduledTask::fromSchedulerEvent($event, $metadata);
 
             if ($task->shouldBeMonitored()) {
                 $tasks[] = $task;
@@ -41,10 +42,10 @@ class ScheduleAnalyzer
      *
      * @return array<ScheduledTask>
      */
-    public function getNamedTasks(): array
+    public function getNamedTasks(?HeartbeatManager $heartbeatManager = null): array
     {
         return array_filter(
-            $this->getMonitorableTasks(),
+            $this->getMonitorableTasks($heartbeatManager),
             fn (ScheduledTask $task) => ! empty($task->name)
         );
     }
@@ -54,7 +55,7 @@ class ScheduleAnalyzer
      *
      * @return array<Event>
      */
-    public function getUnnamedTasks(): array
+    public function getUnnamedTasks(?HeartbeatManager $heartbeatManager = null): array
     {
         $unnamedTasks = [];
 
@@ -63,7 +64,8 @@ class ScheduleAnalyzer
                 continue;
             }
 
-            $task = ScheduledTask::fromSchedulerEvent($event);
+            $metadata = $heartbeatManager?->getTaskMetadata($event) ?? [];
+            $task = ScheduledTask::fromSchedulerEvent($event, $metadata);
 
             if (empty($task->name) && $task->shouldBeMonitored()) {
                 $unnamedTasks[] = $event;
@@ -78,9 +80,9 @@ class ScheduleAnalyzer
      *
      * @return array<string, array<ScheduledTask>>
      */
-    public function getDuplicateTasks(): array
+    public function getDuplicateTasks(?HeartbeatManager $heartbeatManager = null): array
     {
-        $tasks = $this->getNamedTasks();
+        $tasks = $this->getNamedTasks($heartbeatManager);
         $grouped = [];
 
         foreach ($tasks as $task) {

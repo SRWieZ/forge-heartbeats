@@ -2,6 +2,7 @@
 
 namespace SRWieZ\ForgeHeartbeats\Listeners;
 
+use Illuminate\Console\Events\ScheduledBackgroundTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskSkipped;
@@ -18,10 +19,9 @@ class ScheduledTaskSubscriber
         private HeartbeatManager $heartbeatManager
     ) {}
 
-    public function handleTaskStarting(ScheduledTaskStarting $event): void
+    public function handleBackgroundTaskFinished(ScheduledBackgroundTaskFinished $event): void
     {
-        // We could ping on start, but typically we only ping on finish/failure
-        // This is configurable behavior that could be added later
+        $this->pingHeartbeat($event->task->command, 'finished');
     }
 
     public function handleTaskFinished(ScheduledTaskFinished $event): void
@@ -46,32 +46,28 @@ class ScheduledTaskSubscriber
 
     private function pingHeartbeat(string $command, string $eventType): void
     {
-        try {
-            // Create a ScheduledTask from the command to extract the name
-            $scheduledTask = new ScheduledTask(
-                name: $this->extractCommandName($command),
-                cronExpression: '', // Not needed for ping
-                timezone: null
-            );
+        // Create a ScheduledTask from the command to extract the name
+        $scheduledTask = new ScheduledTask(
+            name: $this->extractCommandName($command),
+            cronExpression: '', // Not needed for ping
+            timezone: null
+        );
 
-            // Find the corresponding heartbeat
-            $heartbeat = $this->heartbeatManager->findHeartbeatForTask($scheduledTask);
+        // Find the corresponding heartbeat
+        $heartbeat = $this->heartbeatManager->findHeartbeatForTask($scheduledTask);
 
-            if (! $heartbeat) {
-                Log::debug("No heartbeat found for task: {$scheduledTask->name}");
+        if (! $heartbeat) {
+            Log::debug("No heartbeat found for task: {$scheduledTask->name}");
 
-                return;
-            }
-
-            // Dispatch the ping job
-            PingHeartbeatJob::dispatch(
-                pingUrl: $heartbeat->pingUrl,
-                taskName: $scheduledTask->name,
-                eventType: $eventType
-            );
-        } catch (\Throwable $e) {
-            Log::error("Error setting up heartbeat ping for command {$command}: " . $e->getMessage());
+            return;
         }
+
+        // Dispatch the ping job
+        PingHeartbeatJob::dispatch(
+            pingUrl: $heartbeat->pingUrl,
+            taskName: $scheduledTask->name,
+            eventType: $eventType
+        );
     }
 
     private function extractCommandName(string $command): string

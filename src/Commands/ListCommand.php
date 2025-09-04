@@ -26,8 +26,8 @@ class ListCommand extends Command
             $this->info('🔍 Fetching heartbeats from Forge...');
 
             $heartbeats = $heartbeatManager->getHeartbeats();
-            $tasks = $scheduleAnalyzer->getNamedTasks();
-            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks();
+            $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
+            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
 
             if (empty($heartbeats) && empty($tasks)) {
                 $this->warn('⚠️  No heartbeats found and no scheduled tasks to monitor.');

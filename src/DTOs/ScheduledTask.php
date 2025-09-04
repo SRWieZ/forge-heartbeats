@@ -15,7 +15,7 @@ class ScheduledTask
         public readonly bool $skipMonitoring = false,
     ) {}
 
-    public static function fromSchedulerEvent(Event $event): self
+    public static function fromSchedulerEvent(Event $event, array $metadata = []): self
     {
         $command = $event->command;
 
@@ -26,6 +26,9 @@ class ScheduledTask
             name: $name,
             cronExpression: $event->expression,
             timezone: $event->timezone,
+            heartbeatName: $metadata['heartbeat_name'] ?? null,
+            graceTimeInMinutes: $metadata['grace_time'] ?? null,
+            skipMonitoring: $metadata['skip_monitoring'] ?? false,
         );
     }
 

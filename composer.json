@@ -48,9 +48,9 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/pest -p",
         "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint",
+        "format": "vendor/bin/pint -p",
         "analyse": "vendor/bin/phpstan analyse",
         "qa": [
             "@format",
