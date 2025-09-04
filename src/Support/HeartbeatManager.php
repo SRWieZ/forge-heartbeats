@@ -12,8 +12,6 @@ use SRWieZ\ForgeHeartbeats\Enums\FrequencyEnum;
 
 class HeartbeatManager
 {
-    private array $taskMetadata = [];
-
     public function __construct(
         private ForgeClientInterface $forgeClient,
         private ScheduleAnalyzer $scheduleAnalyzer,
@@ -22,27 +20,22 @@ class HeartbeatManager
 
     public function setHeartbeatName(Event $event, string $name): void
     {
-        $taskId = spl_object_hash($event);
-        $this->taskMetadata[$taskId]['heartbeat_name'] = $name;
+        TaskMetadataRegistry::setHeartbeatName($event, $name);
     }
 
     public function setGraceTime(Event $event, int $minutes): void
     {
-        $taskId = spl_object_hash($event);
-        $this->taskMetadata[$taskId]['grace_time'] = $minutes;
+        TaskMetadataRegistry::setGraceTime($event, $minutes);
     }
 
     public function setSkipMonitoring(Event $event, bool $skip): void
     {
-        $taskId = spl_object_hash($event);
-        $this->taskMetadata[$taskId]['skip_monitoring'] = $skip;
+        TaskMetadataRegistry::setSkipMonitoring($event, $skip);
     }
 
     public function getTaskMetadata(Event $event): array
     {
-        $taskId = spl_object_hash($event);
-
-        return $this->taskMetadata[$taskId] ?? [];
+        return TaskMetadataRegistry::getTaskMetadata($event);
     }
 
     /**

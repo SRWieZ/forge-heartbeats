@@ -21,6 +21,7 @@ use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskListener;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
+use SRWieZ\ForgeHeartbeats\Support\TaskMetadataRegistry;
 
 class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
 {
@@ -71,19 +72,19 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
     {
         SchedulerEvent::macro('heartbeatName', function (string $name) {
             return $this->then(function () use ($name) {
-                app(HeartbeatManager::class)->setHeartbeatName($this, $name);
+                TaskMetadataRegistry::setHeartbeatName($this, $name);
             });
         });
 
         SchedulerEvent::macro('graceTimeInMinutes', function (int $minutes) {
             return $this->then(function () use ($minutes) {
-                app(HeartbeatManager::class)->setGraceTime($this, $minutes);
+                TaskMetadataRegistry::setGraceTime($this, $minutes);
             });
         });
 
         SchedulerEvent::macro('doNotMonitorOnForge', function (bool $skip = true) {
             return $this->then(function () use ($skip) {
-                app(HeartbeatManager::class)->setSkipMonitoring($this, $skip);
+                TaskMetadataRegistry::setSkipMonitoring($this, $skip);
             });
         });
 
