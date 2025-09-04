@@ -5,10 +5,12 @@ namespace SRWieZ\ForgeHeartbeats\Listeners;
 use Illuminate\Console\Events\ScheduledBackgroundTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Log;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
+use SRWieZ\ForgeHeartbeats\Support\TaskMetadataRegistry;
 
 class ScheduledTaskListener
 {
@@ -18,26 +20,33 @@ class ScheduledTaskListener
 
     public function handleBackgroundTaskFinished(ScheduledBackgroundTaskFinished $event): void
     {
-        $this->pingHeartbeat($event->task->command, 'finished');
+        $this->pingHeartbeat($event->task, 'finished');
     }
 
     public function handleTaskFinished(ScheduledTaskFinished $event): void
     {
-        $this->pingHeartbeat($event->task->command, 'finished');
+        $this->pingHeartbeat($event->task, 'finished');
     }
 
     public function handleTaskFailed(ScheduledTaskFailed $event): void
     {
-        $this->pingHeartbeat($event->task->command, 'failed');
+        $this->pingHeartbeat($event->task, 'failed');
     }
 
-    private function pingHeartbeat(string $command, string $eventType): void
+    private function pingHeartbeat(Event $event, string $eventType): void
     {
-        // Create a ScheduledTask from the command to extract the name
-        $scheduledTask = new ScheduledTask(
-            name: $this->extractCommandName($command),
-            cronExpression: '', // Not needed for ping
-        );
+        // Get metadata for the event
+        $metadata = TaskMetadataRegistry::getTaskMetadata($event);
+
+        // Create a ScheduledTask with full metadata
+        $scheduledTask = ScheduledTask::fromSchedulerEvent($event, $metadata);
+
+        // Check if monitoring is disabled for this task
+        if ($scheduledTask->skipMonitoring) {
+            Log::debug("Skipping monitoring for task: {$scheduledTask->name}");
+
+            return;
+        }
 
         // Find the corresponding heartbeat
         $heartbeat = $this->heartbeatManager->findHeartbeatForTask($scheduledTask);
@@ -51,19 +60,8 @@ class ScheduledTaskListener
         // Dispatch the ping job
         PingHeartbeatJob::dispatch(
             pingUrl: $heartbeat->pingUrl,
-            taskName: $scheduledTask->name,
+            taskName: $scheduledTask->getDisplayName(),
             eventType: $eventType
         );
-    }
-
-    private function extractCommandName(string $command): string
-    {
-        // Remove php artisan prefix
-        $command = preg_replace('/^.*php\s+artisan\s+/', '', $command);
-
-        // Extract just the command name (first word)
-        $parts = explode(' ', trim($command));
-
-        return $parts[0] ?? $command;
     }
 }
