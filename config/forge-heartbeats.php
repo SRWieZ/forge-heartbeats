@@ -53,7 +53,6 @@ return [
      * This helps reduce the number of API calls to Forge.
      */
     'cache' => [
-        'ttl' => 300, // seconds (5 minutes)
         'prefix' => 'forge_heartbeats',
     ],
 

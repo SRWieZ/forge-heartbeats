@@ -12,7 +12,6 @@ it('can sync scheduled tasks with forge heartbeats', function () {
     config(['forge-heartbeats.site_id' => 67890]);
     config(['forge-heartbeats.queue.connection' => 'sync']);
     config(['forge-heartbeats.queue.name' => 'default']);
-    config(['forge-heartbeats.cache.ttl' => 0]); // Disable caching for tests
     config(['forge-heartbeats.cache.prefix' => 'forge_heartbeats']);
     config(['forge-heartbeats.defaults.grace_period' => 5]);
 
@@ -76,7 +75,6 @@ it('supports keep-old flag', function () {
     config(['forge-heartbeats.site_id' => 67890]);
     config(['forge-heartbeats.queue.connection' => 'sync']);
     config(['forge-heartbeats.queue.name' => 'default']);
-    config(['forge-heartbeats.cache.ttl' => 0]); // Disable caching for tests
     config(['forge-heartbeats.cache.prefix' => 'forge_heartbeats']);
     config(['forge-heartbeats.defaults.grace_period' => 5]);
 

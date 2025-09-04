@@ -42,12 +42,15 @@ class HeartbeatManager
      *
      * @return array<Heartbeat>
      */
-    public function getHeartbeats(): array
+    public function getHeartbeats(bool $forceRefresh = false): array
     {
         $cacheKey = config('forge-heartbeats.cache.prefix') . ':heartbeats';
-        $cacheTtl = config('forge-heartbeats.cache.ttl', 300);
 
-        return Cache::remember($cacheKey, $cacheTtl, function () {
+        if ($forceRefresh) {
+            Cache::forget($cacheKey);
+        }
+
+        return Cache::rememberForever($cacheKey, function () {
             return $this->forgeClient->listHeartbeats();
         });
     }
@@ -58,7 +61,7 @@ class HeartbeatManager
     public function syncHeartbeats(bool $keepOldHeartbeats = false): array
     {
         $tasks = $this->scheduleAnalyzer->getNamedTasks($this);
-        $heartbeats = $this->getHeartbeats();
+        $heartbeats = $this->getHeartbeats(true);
 
         $matchResult = $this->taskMatcher->match($tasks, $heartbeats);
 
@@ -91,8 +94,10 @@ class HeartbeatManager
             }
         }
 
-        // Clear cache after sync
-        $this->clearHeartbeatsCache();
+        // Update cache with fresh data
+        if (! empty($created) || ! empty($updated) || ! empty($deleted)) {
+            $this->getHeartbeats(true);
+        }
 
         return [
             'created' => $created,
@@ -159,11 +164,5 @@ class HeartbeatManager
             // Standard frequency - check if frequency matches and custom_frequency is null
             return $heartbeat->frequency !== $frequency->value || $heartbeat->customFrequency !== null;
         }
-    }
-
-    private function clearHeartbeatsCache(): void
-    {
-        $cacheKey = config('forge-heartbeats.cache.prefix') . ':heartbeats';
-        Cache::forget($cacheKey);
     }
 }

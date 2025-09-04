@@ -22,7 +22,7 @@ class ListCommand extends Command
     ): int {
         $this->info('🔍 Fetching heartbeats from Forge...');
 
-        $heartbeats = $heartbeatManager->getHeartbeats();
+        $heartbeats = $heartbeatManager->getHeartbeats(true);
         $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
         $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
 
