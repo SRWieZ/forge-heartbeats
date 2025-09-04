@@ -37,7 +37,6 @@ class ScheduledTaskListener
         $scheduledTask = new ScheduledTask(
             name: $this->extractCommandName($command),
             cronExpression: '', // Not needed for ping
-            timezone: null
         );
 
         // Find the corresponding heartbeat

@@ -10,6 +10,7 @@ use SRWieZ\ForgeHeartbeats\Http\Client\FakeForgeClient;
 use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 use Symfony\Component\Console\Output\BufferedOutput;
+
 use function Termwind\renderUsing;
 
 class TestCase extends Orchestra

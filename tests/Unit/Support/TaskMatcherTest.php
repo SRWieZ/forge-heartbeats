@@ -10,9 +10,9 @@ beforeEach(function () {
 
 it('can match tasks to heartbeats', function () {
     $tasks = [
-        new ScheduledTask('task-1', '0 * * * *', null),
-        new ScheduledTask('task-2', '0 0 * * *', null),
-        new ScheduledTask('task-3', '0 */6 * * *', null),
+        new ScheduledTask('task-1', '0 * * * *'),
+        new ScheduledTask('task-2', '0 0 * * *'),
+        new ScheduledTask('task-3', '0 */6 * * *'),
     ];
 
     $heartbeats = [
@@ -37,7 +37,7 @@ it('can match tasks to heartbeats', function () {
 });
 
 it('can find heartbeat for task', function () {
-    $task = new ScheduledTask('test-task', '0 * * * *', null);
+    $task = new ScheduledTask('test-task', '0 * * * *');
 
     $heartbeats = [
         new Heartbeat(1, 'other-task', 'pending', 5, 1, '0 * * * *', 'http://ping1'),
@@ -52,7 +52,7 @@ it('can find heartbeat for task', function () {
 });
 
 it('returns null when heartbeat not found', function () {
-    $task = new ScheduledTask('missing-task', '0 * * * *', null);
+    $task = new ScheduledTask('missing-task', '0 * * * *');
 
     $heartbeats = [
         new Heartbeat(1, 'other-task', 'pending', 5, 1, '0 * * * *', 'http://ping1'),
@@ -65,7 +65,7 @@ it('returns null when heartbeat not found', function () {
 
 it('handles tasks with custom heartbeat names', function () {
     $tasks = [
-        new ScheduledTask('command-name', '0 * * * *', null, 'custom-heartbeat-name'),
+        new ScheduledTask('command-name', '0 * * * *', 'custom-heartbeat-name'),
     ];
 
     $heartbeats = [

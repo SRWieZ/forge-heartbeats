@@ -9,7 +9,6 @@ class ScheduledTask
     public function __construct(
         public readonly string $name,
         public readonly string $cronExpression,
-        public readonly ?string $timezone,
         public readonly ?string $heartbeatName = null,
         public readonly ?int $graceTimeInMinutes = null,
         public readonly bool $skipMonitoring = false,
@@ -25,7 +24,6 @@ class ScheduledTask
         return new self(
             name: $name,
             cronExpression: $event->expression,
-            timezone: $event->timezone,
             heartbeatName: $metadata['heartbeat_name'] ?? null,
             graceTimeInMinutes: $metadata['grace_time'] ?? null,
             skipMonitoring: $metadata['skip_monitoring'] ?? false,
