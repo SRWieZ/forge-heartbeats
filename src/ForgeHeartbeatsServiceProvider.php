@@ -60,10 +60,8 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
     protected function registerEventHandlers(): self
     {
         Event::listen([
-            ScheduledTaskStarting::class,
             ScheduledTaskFinished::class,
             ScheduledTaskFailed::class,
-            ScheduledTaskSkipped::class,
         ], ScheduledTaskSubscriber::class);
 
         return $this;

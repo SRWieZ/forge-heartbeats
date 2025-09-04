@@ -22,7 +22,6 @@ class ScheduledTaskSubscriber
     {
         // We could ping on start, but typically we only ping on finish/failure
         // This is configurable behavior that could be added later
-        Log::debug("Scheduled task starting: {$event->task->command}");
     }
 
     public function handleTaskFinished(ScheduledTaskFinished $event): void
@@ -33,12 +32,6 @@ class ScheduledTaskSubscriber
     public function handleTaskFailed(ScheduledTaskFailed $event): void
     {
         $this->pingHeartbeat($event->task->command, 'failed');
-    }
-
-    public function handleTaskSkipped(ScheduledTaskSkipped $event): void
-    {
-        // Typically we don't ping for skipped tasks, but this could be configurable
-        Log::debug("Scheduled task skipped: {$event->task->command}");
     }
 
     public function subscribe(Dispatcher $events): array
