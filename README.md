@@ -44,8 +44,8 @@ FORGE_HEARTBEAT_GRACE_PERIOD=5
 
 ### Getting Your Credentials
 
-1. **API Token**: Generate in your Forge dashboard under **API** settings
-2. **Organization**: Found in your Forge URL (`https://forge.laravel.com/profile/api`)
+1. **API Token**: Generate in your Forge dashboard (https://forge.laravel.com/profile/api). You only need `site:manage-heartbeats` permission for this package.
+2. **Organization**: Look for the slug in the URL when viewing your organization (e.g., `my-org` in `https://forge.laravel.com/your-organization/`)
 3. **Server ID**: Found in the server homepage
 4. **Site ID**: Found in the site homepage
 
