@@ -17,8 +17,7 @@ class HeartbeatManager
         private ForgeClientInterface $forgeClient,
         private ScheduleAnalyzer $scheduleAnalyzer,
         private TaskMatcher $taskMatcher
-    ) {
-    }
+    ) {}
 
     public function setHeartbeatName(Event $event, string $name): void
     {
@@ -60,9 +59,9 @@ class HeartbeatManager
     {
         $tasks = $this->scheduleAnalyzer->getNamedTasks();
         $heartbeats = $this->getHeartbeats();
-        
+
         $matchResult = $this->taskMatcher->match($tasks, $heartbeats);
-        
+
         $created = [];
         $updated = [];
         $deleted = [];
@@ -77,7 +76,7 @@ class HeartbeatManager
         foreach ($matchResult['matched'] as $match) {
             $task = $match['task'];
             $heartbeat = $match['heartbeat'];
-            
+
             if ($this->shouldUpdateHeartbeat($task, $heartbeat)) {
                 $updatedHeartbeat = $this->updateHeartbeatForTask($task, $heartbeat);
                 $updated[] = $updatedHeartbeat;
@@ -108,17 +107,17 @@ class HeartbeatManager
     public function findHeartbeatForTask(ScheduledTask $task): ?Heartbeat
     {
         $heartbeats = $this->getHeartbeats();
-        
+
         return $this->taskMatcher->findHeartbeatForTask($task, $heartbeats);
     }
 
     private function createHeartbeatForTask(ScheduledTask $task): Heartbeat
     {
         $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-        
+
         // Convert cron to frequency (simplified)
         $frequency = $this->cronToFrequency($task->cronExpression);
-        
+
         return $this->forgeClient->createHeartbeat(
             name: $task->getDisplayName(),
             gracePeriod: $gracePeriod,
@@ -131,7 +130,7 @@ class HeartbeatManager
     {
         $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
         $frequency = $this->cronToFrequency($task->cronExpression);
-        
+
         return $this->forgeClient->updateHeartbeat(
             heartbeatId: $heartbeat->id,
             name: $task->getDisplayName(),
@@ -145,7 +144,7 @@ class HeartbeatManager
     {
         $expectedGracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
         $expectedName = $task->getDisplayName();
-        
+
         return $heartbeat->name !== $expectedName
             || $heartbeat->gracePeriod !== $expectedGracePeriod
             || $heartbeat->customFrequency !== $task->cronExpression;
@@ -155,19 +154,19 @@ class HeartbeatManager
     {
         // Simple mapping of common cron patterns to Forge frequency constants
         // This is a simplified version - in a real implementation you might want more sophisticated parsing
-        
+
         if ($cronExpression === '* * * * *') {
             return 1; // Every minute
         }
-        
+
         if (preg_match('/^\d+ \* \* \* \*$/', $cronExpression)) {
             return 2; // Hourly
         }
-        
+
         if (preg_match('/^\d+ \d+ \* \* \*$/', $cronExpression)) {
             return 3; // Daily
         }
-        
+
         // Default to custom frequency
         return 1;
     }

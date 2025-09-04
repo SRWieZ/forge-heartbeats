@@ -12,8 +12,7 @@ class Heartbeat
         public readonly int $frequency,
         public readonly ?string $customFrequency,
         public readonly string $pingUrl
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {

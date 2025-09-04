@@ -14,8 +14,7 @@
     "authors": [
         {
             "name": "SRWieZ",
-            "email": "srwiez@gmail.com",
-            "role": "Owner"
+            "email": "srwiez@gmail.com"
         }
     ],
     "require": {
@@ -52,7 +51,12 @@
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint",
-        "analyse": "vendor/bin/phpstan analyse"
+        "analyse": "vendor/bin/phpstan analyse",
+        "qa": [
+            "@format",
+            "@analyse",
+            "@test"
+        ]
     },
     "config": {
         "sort-packages": true,

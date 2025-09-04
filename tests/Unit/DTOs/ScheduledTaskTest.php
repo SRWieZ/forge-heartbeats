@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Console\Scheduling\Event;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
 
 it('can create scheduled task from scheduler event', function () {
@@ -20,13 +19,13 @@ it('can create scheduled task from scheduler event', function () {
 
 it('extracts command name correctly', function () {
     // Test the static method directly with command strings
-    expect(ScheduledTask::fromSchedulerEvent((object)[
+    expect(ScheduledTask::fromSchedulerEvent((object) [
         'command' => '/usr/bin/php /var/www/artisan inspire',
         'expression' => '0 * * * *',
         'timezone' => null,
     ])->name)->toBe('inspire');
 
-    expect(ScheduledTask::fromSchedulerEvent((object)[
+    expect(ScheduledTask::fromSchedulerEvent((object) [
         'command' => 'php artisan queue:work --stop-when-empty',
         'expression' => '0 * * * *',
         'timezone' => null,

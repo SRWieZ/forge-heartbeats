@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use SRWieZ\ForgeHeartbeats\Events\HeartbeatPinged;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
@@ -50,7 +49,7 @@ it('handles ping failures', function () {
 it('handles exceptions and retries', function () {
     $client = Mockery::mock('SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface');
     $client->shouldReceive('pingHeartbeat')
-           ->andThrow(new Exception('Network error'));
+        ->andThrow(new Exception('Network error'));
 
     $job = new PingHeartbeatJob(
         'https://forge.laravel.com/api/heartbeat/ping/test123',

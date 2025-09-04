@@ -20,14 +20,15 @@ class ForgeApiException extends Exception
     {
         $statusCode = $response->getStatusCode();
         $body = $response->getBody()->getContents();
-        
-        $message = $customMessage ?? "Forge API request failed with status {$statusCode}";
-        
+        $message = $customMessage ?? '';
+
         if ($body) {
             $data = json_decode($body, true);
             if (isset($data['message'])) {
                 $message .= ': ' . $data['message'];
             }
+        } else {
+            $message .= ': Forge API request failed with status ' . $statusCode;
         }
 
         return new self($message, $statusCode, $response);

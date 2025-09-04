@@ -4,7 +4,7 @@ it('can verify configuration and connectivity', function () {
     // Manually test what happens when we inject the client
     $fakeClient = app(\SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface::class);
     expect($fakeClient)->toBeInstanceOf(\SRWieZ\ForgeHeartbeats\Tests\TestClasses\FakeForgeClient::class);
-    
+
     // Manually set configuration for this test
     config(['forge-heartbeats.api_token' => 'test-token']);
     config(['forge-heartbeats.organization' => 'test-org']);
@@ -12,7 +12,7 @@ it('can verify configuration and connectivity', function () {
     config(['forge-heartbeats.site_id' => 67890]);
     config(['forge-heartbeats.queue.connection' => 'sync']);
     config(['forge-heartbeats.queue.name' => 'default']);
-    
+
     $this->artisan('forge:heartbeats:verify')
         ->assertExitCode(0);
 });

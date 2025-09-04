@@ -16,6 +16,5 @@ class HeartbeatPinged
         public readonly bool $success,
         public readonly string $eventType,
         public readonly ?string $error = null
-    ) {
-    }
+    ) {}
 }

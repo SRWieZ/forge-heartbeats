@@ -10,8 +10,7 @@ class ScheduleAnalyzer
 {
     public function __construct(
         private Schedule $schedule
-    ) {
-    }
+    ) {}
 
     /**
      * Get all scheduled tasks that should be monitored.
@@ -28,7 +27,7 @@ class ScheduleAnalyzer
             }
 
             $task = ScheduledTask::fromSchedulerEvent($event);
-            
+
             if ($task->shouldBeMonitored()) {
                 $tasks[] = $task;
             }
@@ -65,7 +64,7 @@ class ScheduleAnalyzer
             }
 
             $task = ScheduledTask::fromSchedulerEvent($event);
-            
+
             if (empty($task->name) && $task->shouldBeMonitored()) {
                 $unnamedTasks[] = $event;
             }
@@ -94,6 +93,6 @@ class ScheduleAnalyzer
 
     private function isCommandEvent(Event $event): bool
     {
-        return str_contains($event->command, 'artisan') || !empty($event->command);
+        return str_contains($event->command, 'artisan') || ! empty($event->command);
     }
 }

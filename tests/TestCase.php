@@ -2,14 +2,15 @@
 
 namespace SRWieZ\ForgeHeartbeats\Tests;
 
-use SRWieZ\ForgeHeartbeats\ForgeHeartbeatsServiceProvider;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Orchestra\Testbench\TestCase as Orchestra;
 use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\ForgeHeartbeatsServiceProvider;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\FakeForgeClient;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Contracts\Console\Kernel;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Symfony\Component\Console\Output\BufferedOutput;
+
 use function Termwind\renderUsing;
 
 class TestCase extends Orchestra
@@ -20,9 +21,9 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->forgeClient = new FakeForgeClient();
+        $this->forgeClient = new FakeForgeClient;
         $this->forgeClient->skipConfigValidation(true); // Skip validation by default for tests
-        
+
         // Override the service provider binding
         $this->app->singleton(ForgeClientInterface::class, fn () => $this->forgeClient);
 
@@ -30,16 +31,16 @@ class TestCase extends Orchestra
             fn (string $modelName) => 'SRWieZ\\ForgeHeartbeats\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
 
-        renderUsing(new BufferedOutput());
-        
+        renderUsing(new BufferedOutput);
+
         TestKernel::clearScheduledCommands();
     }
-    
+
     protected function tearDown(): void
     {
         $this->forgeClient->reset();
         TestKernel::clearScheduledCommands();
-        
+
         parent::tearDown();
     }
 
@@ -49,7 +50,7 @@ class TestCase extends Orchestra
             ForgeHeartbeatsServiceProvider::class,
         ];
     }
-    
+
     protected function resolveApplicationConsoleKernel($app)
     {
         $app->singleton(Kernel::class, TestKernel::class);
@@ -68,10 +69,9 @@ class TestCase extends Orchestra
         $app['config']->set('forge-heartbeats.organization', 'test-org');
         $app['config']->set('forge-heartbeats.server_id', 12345);
         $app['config']->set('forge-heartbeats.site_id', 67890);
-        
+
         // Set queue configuration
         $app['config']->set('forge-heartbeats.queue.connection', 'sync');
         $app['config']->set('forge-heartbeats.queue.name', 'default');
     }
-    
 }

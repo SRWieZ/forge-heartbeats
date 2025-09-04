@@ -20,15 +20,17 @@ class VerifyCommand extends Command
         try {
             $this->checkConfiguration();
             $this->checkConnectivity($forgeClient);
-            
+
             $this->info('✅ Configuration verified successfully');
-            
+
             return self::SUCCESS;
         } catch (InvalidConfigException $e) {
             $this->error('❌ Configuration Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } catch (\Throwable $e) {
             $this->error('❌ Error: ' . $e->getMessage());
+
             return self::FAILURE;
         }
     }
@@ -39,14 +41,14 @@ class VerifyCommand extends Command
 
         $requiredConfigs = [
             'forge-heartbeats.api_token' => 'FORGE_API_TOKEN',
-            'forge-heartbeats.organization' => 'FORGE_ORGANIZATION', 
+            'forge-heartbeats.organization' => 'FORGE_ORGANIZATION',
             'forge-heartbeats.server_id' => 'FORGE_SERVER_ID',
             'forge-heartbeats.site_id' => 'FORGE_SITE_ID',
         ];
 
         foreach ($requiredConfigs as $config => $envVar) {
             $value = config($config);
-            
+
             if (empty($value)) {
                 throw new InvalidConfigException("Missing configuration: {$config}. Please set {$envVar} in your .env file.");
             }
@@ -57,7 +59,7 @@ class VerifyCommand extends Command
         // Check queue configuration
         $queueConnection = config('forge-heartbeats.queue.connection', 'default');
         $queueName = config('forge-heartbeats.queue.name', 'default');
-        
+
         $this->line("  ✓ Queue connection: {$queueConnection}");
         $this->line("  ✓ Queue name: {$queueName}");
     }
@@ -68,17 +70,17 @@ class VerifyCommand extends Command
 
         try {
             $heartbeats = $forgeClient->listHeartbeats();
-            
+
             $count = count($heartbeats);
-            $this->line("  ✓ Successfully connected to Forge API");
+            $this->line('  ✓ Successfully connected to Forge API');
             $this->line("  ✓ Found {$count} existing heartbeat(s)");
-            
+
             if ($count > 0) {
                 $this->line("  ✓ Sample heartbeat: {$heartbeats[0]->name} ({$heartbeats[0]->status})");
             }
         } catch (RequestException $e) {
             $statusCode = $e->getResponse()?->getStatusCode();
-            
+
             if ($statusCode === 401) {
                 throw new InvalidConfigException('API authentication failed. Please check your FORGE_API_TOKEN.');
             } elseif ($statusCode === 403) {

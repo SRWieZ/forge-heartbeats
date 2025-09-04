@@ -10,8 +10,8 @@ class TaskMatcher
     /**
      * Match scheduled tasks to existing heartbeats by name.
      *
-     * @param array<ScheduledTask> $tasks
-     * @param array<Heartbeat> $heartbeats
+     * @param  array<ScheduledTask>  $tasks
+     * @param  array<Heartbeat>  $heartbeats
      * @return array{matched: array, unmatched_tasks: array<ScheduledTask>, orphaned_heartbeats: array<Heartbeat>}
      */
     public function match(array $tasks, array $heartbeats): array
@@ -47,7 +47,7 @@ class TaskMatcher
     /**
      * Find a heartbeat by task name.
      *
-     * @param array<Heartbeat> $heartbeats
+     * @param  array<Heartbeat>  $heartbeats
      */
     public function findHeartbeatForTask(ScheduledTask $task, array $heartbeats): ?Heartbeat
     {
@@ -63,7 +63,7 @@ class TaskMatcher
     }
 
     /**
-     * @param array<Heartbeat> $heartbeats
+     * @param  array<Heartbeat>  $heartbeats
      * @return array<string, array<Heartbeat>>
      */
     private function groupHeartbeatsByName(array $heartbeats): array
@@ -78,7 +78,7 @@ class TaskMatcher
     }
 
     /**
-     * @param array<ScheduledTask> $tasks
+     * @param  array<ScheduledTask>  $tasks
      * @return array<string, array<ScheduledTask>>
      */
     private function groupTasksByName(array $tasks): array

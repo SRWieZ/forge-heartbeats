@@ -5,7 +5,7 @@ use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
 
 beforeEach(function () {
-    $this->matcher = new TaskMatcher();
+    $this->matcher = new TaskMatcher;
 });
 
 it('can match tasks to heartbeats', function () {
@@ -38,7 +38,7 @@ it('can match tasks to heartbeats', function () {
 
 it('can find heartbeat for task', function () {
     $task = new ScheduledTask('test-task', '0 * * * *', null);
-    
+
     $heartbeats = [
         new Heartbeat(1, 'other-task', 'pending', 5, 1, '0 * * * *', 'http://ping1'),
         new Heartbeat(2, 'test-task', 'up', 10, 2, '0 0 * * *', 'http://ping2'),
@@ -53,7 +53,7 @@ it('can find heartbeat for task', function () {
 
 it('returns null when heartbeat not found', function () {
     $task = new ScheduledTask('missing-task', '0 * * * *', null);
-    
+
     $heartbeats = [
         new Heartbeat(1, 'other-task', 'pending', 5, 1, '0 * * * *', 'http://ping1'),
     ];

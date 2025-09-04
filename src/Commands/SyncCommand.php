@@ -21,30 +21,31 @@ class SyncCommand extends Command
     ): int {
         try {
             $this->info('🔍 Analyzing scheduled tasks...');
-            
+
             $tasks = $scheduleAnalyzer->getNamedTasks();
             $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks();
             $duplicateTasks = $scheduleAnalyzer->getDuplicateTasks();
 
             if (empty($tasks)) {
                 $this->warn('⚠️  No scheduled tasks found to monitor.');
+
                 return self::SUCCESS;
             }
 
             $this->info("📋 Found {count($tasks)} scheduled task(s) to monitor");
 
             if (! empty($unnamedTasks)) {
-                $this->warn("⚠️  Found " . count($unnamedTasks) . " unnamed task(s) that cannot be monitored");
+                $this->warn('⚠️  Found ' . count($unnamedTasks) . ' unnamed task(s) that cannot be monitored');
             }
 
             if (! empty($duplicateTasks)) {
-                $this->warn("⚠️  Found duplicate task names: " . implode(', ', array_keys($duplicateTasks)));
+                $this->warn('⚠️  Found duplicate task names: ' . implode(', ', array_keys($duplicateTasks)));
             }
 
             $keepOld = $this->option('keep-old');
-            
+
             $this->info('🔄 Syncing with Forge...');
-            
+
             $result = $heartbeatManager->syncHeartbeats($keepOld);
 
             $this->displayResults($result);
@@ -54,15 +55,18 @@ class SyncCommand extends Command
             return self::SUCCESS;
         } catch (InvalidConfigException $e) {
             $this->error('❌ Configuration Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } catch (ForgeApiException $e) {
             $this->error('❌ Forge API Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } catch (\Throwable $e) {
             $this->error('❌ Unexpected Error: ' . $e->getMessage());
-            $this->line("DEBUG: Exception caught: " . $e->getMessage());
-            $this->line("DEBUG: Exception class: " . get_class($e));
-            $this->line("DEBUG: Stack trace: " . $e->getTraceAsString());
+            $this->line('DEBUG: Exception caught: ' . $e->getMessage());
+            $this->line('DEBUG: Exception class: ' . get_class($e));
+            $this->line('DEBUG: Stack trace: ' . $e->getTraceAsString());
+
             return self::FAILURE;
         }
     }

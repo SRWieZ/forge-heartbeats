@@ -16,8 +16,7 @@ class ScheduledTaskSubscriber
 {
     public function __construct(
         private HeartbeatManager $heartbeatManager
-    ) {
-    }
+    ) {}
 
     public function handleTaskStarting(ScheduledTaskStarting $event): void
     {
@@ -46,7 +45,7 @@ class ScheduledTaskSubscriber
     {
         return [
             ScheduledTaskStarting::class => 'handleTaskStarting',
-            ScheduledTaskFinished::class => 'handleTaskFinished', 
+            ScheduledTaskFinished::class => 'handleTaskFinished',
             ScheduledTaskFailed::class => 'handleTaskFailed',
             ScheduledTaskSkipped::class => 'handleTaskSkipped',
         ];
@@ -67,6 +66,7 @@ class ScheduledTaskSubscriber
 
             if (! $heartbeat) {
                 Log::debug("No heartbeat found for task: {$scheduledTask->name}");
+
                 return;
             }
 
@@ -85,10 +85,10 @@ class ScheduledTaskSubscriber
     {
         // Remove php artisan prefix
         $command = preg_replace('/^.*php\s+artisan\s+/', '', $command);
-        
+
         // Extract just the command name (first word)
         $parts = explode(' ', trim($command));
-        
+
         return $parts[0] ?? $command;
     }
 }

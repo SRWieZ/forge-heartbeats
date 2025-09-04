@@ -16,6 +16,7 @@ class PingHeartbeatJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries;
+
     public int $retryAfter;
 
     public function __construct(
@@ -25,7 +26,7 @@ class PingHeartbeatJob implements ShouldQueue
     ) {
         $this->tries = config('forge-heartbeats.queue.max_attempts', 3);
         $this->retryAfter = config('forge-heartbeats.queue.retry_after', 60);
-        
+
         $this->onQueue(config('forge-heartbeats.queue.name', 'default'));
         $this->onConnection(config('forge-heartbeats.queue.connection', 'default'));
     }
@@ -50,7 +51,7 @@ class PingHeartbeatJob implements ShouldQueue
             );
         } catch (\Throwable $e) {
             Log::error("Error pinging heartbeat for task {$this->taskName}: " . $e->getMessage());
-            
+
             // Re-throw to trigger retry mechanism
             throw $e;
         }
@@ -59,7 +60,7 @@ class PingHeartbeatJob implements ShouldQueue
     public function failed(\Throwable $exception): void
     {
         Log::error("Failed to ping heartbeat for task {$this->taskName} after {$this->tries} attempts: " . $exception->getMessage());
-        
+
         HeartbeatPinged::dispatch(
             $this->taskName,
             $this->pingUrl,

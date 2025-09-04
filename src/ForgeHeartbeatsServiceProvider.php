@@ -2,16 +2,6 @@
 
 namespace SRWieZ\ForgeHeartbeats;
 
-use SRWieZ\ForgeHeartbeats\Commands\ListCommand;
-use SRWieZ\ForgeHeartbeats\Commands\SyncCommand;
-use SRWieZ\ForgeHeartbeats\Commands\VerifyCommand;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
-use SRWieZ\ForgeHeartbeats\Http\ForgeClient;
-use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
-use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskSubscriber;
-use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
-use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
-use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskSkipped;
@@ -22,6 +12,16 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Horizon\Horizon;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use SRWieZ\ForgeHeartbeats\Commands\ListCommand;
+use SRWieZ\ForgeHeartbeats\Commands\SyncCommand;
+use SRWieZ\ForgeHeartbeats\Commands\VerifyCommand;
+use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\Http\ForgeClient;
+use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
+use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskSubscriber;
+use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
+use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
+use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
 
 class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
 {

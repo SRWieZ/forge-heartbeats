@@ -3,12 +3,12 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
-use Lorisleiva\CronTranslator\CronTranslator;
 use SRWieZ\ForgeHeartbeats\Exceptions\ForgeApiException;
 use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
+
 use function Termwind\render;
 
 class ListCommand extends Command
@@ -24,13 +24,14 @@ class ListCommand extends Command
     ): int {
         try {
             $this->info('🔍 Fetching heartbeats from Forge...');
-            
+
             $heartbeats = $heartbeatManager->getHeartbeats();
             $tasks = $scheduleAnalyzer->getNamedTasks();
             $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks();
-            
+
             if (empty($heartbeats) && empty($tasks)) {
                 $this->warn('⚠️  No heartbeats found and no scheduled tasks to monitor.');
+
                 return self::SUCCESS;
             }
 
@@ -41,12 +42,15 @@ class ListCommand extends Command
             return self::SUCCESS;
         } catch (InvalidConfigException $e) {
             $this->error('❌ Configuration Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } catch (ForgeApiException $e) {
             $this->error('❌ Forge API Error: ' . $e->getMessage());
+
             return self::FAILURE;
         } catch (\Throwable $e) {
             $this->error('❌ Unexpected Error: ' . $e->getMessage());
+
             return self::FAILURE;
         }
     }
@@ -59,34 +63,5 @@ class ListCommand extends Command
             'orphanedHeartbeats' => $matchResult['orphaned_heartbeats'],
             'unnamedTasks' => $unnamedTasks,
         ]));
-    }
-
-    private function getStatusColor(string $status): string
-    {
-        return match ($status) {
-            'pending' => 'yellow',
-            'up' => 'green',
-            'down' => 'red',
-            default => 'gray',
-        };
-    }
-
-    private function getStatusIcon(string $status): string
-    {
-        return match ($status) {
-            'pending' => '⏳',
-            'up' => '✅',
-            'down' => '❌',
-            default => '❓',
-        };
-    }
-
-    private function formatCronExpression(string $cronExpression): string
-    {
-        try {
-            return CronTranslator::translate($cronExpression);
-        } catch (\Throwable) {
-            return $cronExpression;
-        }
     }
 }

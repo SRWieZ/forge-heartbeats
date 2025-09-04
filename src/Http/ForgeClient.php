@@ -2,6 +2,7 @@
 
 namespace SRWieZ\ForgeHeartbeats\Http;
 
+use Composer\InstalledVersions;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
@@ -14,10 +15,15 @@ use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
 class ForgeClient implements ForgeClientInterface
 {
     private Client $client;
+
     private string $baseUrl;
+
     private ?string $apiToken;
+
     private ?string $organization;
+
     private ?int $serverId;
+
     private ?int $siteId;
 
     public function __construct()
@@ -26,9 +32,12 @@ class ForgeClient implements ForgeClientInterface
         $this->organization = config('forge-heartbeats.organization');
         $this->serverId = config('forge-heartbeats.server_id');
         $this->siteId = config('forge-heartbeats.site_id');
-        $this->baseUrl = config('forge-heartbeats.api.base_url', 'https://forge.laravel.com/api');
+        $this->baseUrl = config('forge-heartbeats.api.base_url', 'https://forge.laravel.com/api/');
 
         $this->validateConfig();
+
+        // Get the current package version
+        $version = InstalledVersions::getVersion('srwiez/forge-heartbeats') ?? 'dev-main';
 
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
@@ -37,13 +46,14 @@ class ForgeClient implements ForgeClientInterface
                 'Authorization' => 'Bearer ' . $this->apiToken,
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
+                'User-Agent' => 'ForgeHeartbeats/' . $version . ' (srwiez/forge-heartbeats composer package)',
             ],
         ]);
     }
 
     public function listHeartbeats(): array
     {
-        $url = "/orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats";
+        $url = "orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats";
 
         try {
             $response = $this->client->get($url);
@@ -60,7 +70,7 @@ class ForgeClient implements ForgeClientInterface
 
     public function createHeartbeat(string $name, int $gracePeriod, int $frequency, ?string $customFrequency = null): Heartbeat
     {
-        $url = "/orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats";
+        $url = "orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats";
 
         $payload = [
             'name' => $name,
@@ -87,7 +97,7 @@ class ForgeClient implements ForgeClientInterface
 
     public function getHeartbeat(int $heartbeatId): Heartbeat
     {
-        $url = "/orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
+        $url = "orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
 
         try {
             $response = $this->client->get($url);
@@ -101,7 +111,7 @@ class ForgeClient implements ForgeClientInterface
 
     public function updateHeartbeat(int $heartbeatId, string $name, int $gracePeriod, int $frequency, ?string $customFrequency = null): Heartbeat
     {
-        $url = "/orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
+        $url = "orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
 
         $payload = [
             'name' => $name,
@@ -128,11 +138,11 @@ class ForgeClient implements ForgeClientInterface
 
     public function deleteHeartbeat(int $heartbeatId): bool
     {
-        $url = "/orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
+        $url = "orgs/{$this->organization}/servers/{$this->serverId}/sites/{$this->siteId}/heartbeats/{$heartbeatId}";
 
         try {
             $response = $this->client->delete($url);
-            
+
             return $response->getStatusCode() === 204;
         } catch (ClientException|RequestException $e) {
             throw ForgeApiException::fromResponse($e->getResponse(), "Failed to delete heartbeat {$heartbeatId}");
@@ -143,7 +153,7 @@ class ForgeClient implements ForgeClientInterface
     {
         try {
             $response = $this->client->get($pingUrl);
-            
+
             return in_array($response->getStatusCode(), [200, 201, 202, 204]);
         } catch (ClientException|RequestException $e) {
             // Heartbeat pings can fail silently, we don't want to break the application
