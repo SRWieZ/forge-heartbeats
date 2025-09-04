@@ -4,8 +4,8 @@ namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
-use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 
 class VerifyCommand extends Command
 {

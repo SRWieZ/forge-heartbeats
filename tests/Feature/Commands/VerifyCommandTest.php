@@ -2,8 +2,8 @@
 
 it('can verify configuration and connectivity', function () {
     // Manually test what happens when we inject the client
-    $fakeClient = app(\SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface::class);
-    expect($fakeClient)->toBeInstanceOf(\SRWieZ\ForgeHeartbeats\Tests\TestClasses\FakeForgeClient::class);
+    $fakeClient = app(\SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface::class);
+    expect($fakeClient)->toBeInstanceOf(\SRWieZ\ForgeHeartbeats\Http\Client\FakeForgeClient::class);
 
     // Manually set configuration for this test
     config(['forge-heartbeats.api_token' => 'test-token']);

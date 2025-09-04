@@ -7,8 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Events\HeartbeatPinged;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 
 class PingHeartbeatJob implements ShouldQueue
 {

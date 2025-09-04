@@ -17,7 +17,7 @@ it('can ping heartbeat successfully', function () {
         'finished'
     );
 
-    $job->handle(app('SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface'));
+    $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface'));
 
     Event::assertDispatched(HeartbeatPinged::class, function ($event) {
         return $event->taskName === 'test-task' &&
@@ -33,7 +33,7 @@ it('handles ping failures', function () {
         'finished'
     );
 
-    $job->handle(app('SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface'));
+    $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface'));
 
     Event::assertDispatched(HeartbeatPinged::class, function ($event) {
         return $event->taskName === 'test-task' &&
@@ -43,7 +43,7 @@ it('handles ping failures', function () {
 });
 
 it('handles exceptions and retries', function () {
-    $client = Mockery::mock('SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface');
+    $client = Mockery::mock('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface');
     $client->shouldReceive('pingHeartbeat')
         ->andThrow(new Exception('Network error'));
 

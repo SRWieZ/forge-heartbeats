@@ -1,10 +1,9 @@
 <?php
 
-namespace SRWieZ\ForgeHeartbeats\Tests\TestClasses;
+namespace SRWieZ\ForgeHeartbeats\Http\Client;
 
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
-use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 
 class FakeForgeClient implements ForgeClientInterface
 {

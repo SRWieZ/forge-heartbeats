@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
-use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('can sync scheduled tasks with forge heartbeats', function () {

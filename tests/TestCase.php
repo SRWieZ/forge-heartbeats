@@ -5,12 +5,11 @@ namespace SRWieZ\ForgeHeartbeats\Tests;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\ForgeHeartbeatsServiceProvider;
-use SRWieZ\ForgeHeartbeats\Tests\TestClasses\FakeForgeClient;
+use SRWieZ\ForgeHeartbeats\Http\Client\FakeForgeClient;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 use Symfony\Component\Console\Output\BufferedOutput;
-
 use function Termwind\renderUsing;
 
 class TestCase extends Orchestra

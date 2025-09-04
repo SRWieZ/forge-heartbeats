@@ -1,16 +1,15 @@
 <?php
 
-namespace SRWieZ\ForgeHeartbeats\Http;
+namespace SRWieZ\ForgeHeartbeats\Http\Client;
 
 use Composer\InstalledVersions;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
-use SRWieZ\ForgeHeartbeats\Exceptions\ForgeApiException;
-use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\ForgeApiException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 
 class ForgeClient implements ForgeClientInterface
 {

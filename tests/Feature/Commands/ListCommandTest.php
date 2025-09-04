@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('can list heartbeats and tasks', function () {

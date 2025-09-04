@@ -3,12 +3,11 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
-use SRWieZ\ForgeHeartbeats\Exceptions\ForgeApiException;
-use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\ForgeApiException;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
-
 use function Termwind\render;
 
 class ListCommand extends Command

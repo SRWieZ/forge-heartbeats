@@ -1,6 +1,6 @@
 <?php
 
-namespace SRWieZ\ForgeHeartbeats\Contracts;
+namespace SRWieZ\ForgeHeartbeats\Http\Client;
 
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 

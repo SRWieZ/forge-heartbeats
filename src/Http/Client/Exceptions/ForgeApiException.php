@@ -1,6 +1,6 @@
 <?php
 
-namespace SRWieZ\ForgeHeartbeats\Exceptions;
+namespace SRWieZ\ForgeHeartbeats\Http\Client\Exceptions;
 
 use Exception;
 use Psr\Http\Message\ResponseInterface;

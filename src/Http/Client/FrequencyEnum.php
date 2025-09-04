@@ -1,6 +1,6 @@
 <?php
 
-namespace SRWieZ\ForgeHeartbeats\Enums;
+namespace SRWieZ\ForgeHeartbeats\Http\Client;
 
 enum FrequencyEnum: int
 {

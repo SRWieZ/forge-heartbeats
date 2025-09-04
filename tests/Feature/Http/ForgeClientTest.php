@@ -1,7 +1,7 @@
 <?php
 
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
 
 it('can list heartbeats', function () {
     $client = app(ForgeClientInterface::class);

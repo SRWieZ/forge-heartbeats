@@ -3,19 +3,18 @@
 namespace SRWieZ\ForgeHeartbeats\Support;
 
 use Illuminate\Console\Scheduling\Event;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Cache;
-use SRWieZ\ForgeHeartbeats\Contracts\ForgeClientInterface;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
-use SRWieZ\ForgeHeartbeats\Enums\FrequencyEnum;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\Http\Client\FrequencyEnum;
 
 class HeartbeatManager
 {
     public function __construct(
-        private ForgeClientInterface $forgeClient,
-        private ScheduleAnalyzer $scheduleAnalyzer,
-        private TaskMatcher $taskMatcher
+        private readonly ForgeClientInterface $forgeClient,
+        private readonly ScheduleAnalyzer $scheduleAnalyzer,
+        private readonly TaskMatcher $taskMatcher
     ) {}
 
     public function setHeartbeatName(Event $event, string $name): void
