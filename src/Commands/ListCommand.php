@@ -41,7 +41,9 @@ class ListCommand extends Command
 
     private function displayHeartbeats(array $matchResult, array $unnamedTasks): void
     {
-        render(view('forge-heartbeats::list', [
+        /** @var view-string $viewName */
+        $viewName = 'forge-heartbeats::list';
+        render(view($viewName, [
             'matched' => $matchResult['matched'],
             'unmatchedTasks' => $matchResult['unmatched_tasks'],
             'orphanedHeartbeats' => $matchResult['orphaned_heartbeats'],

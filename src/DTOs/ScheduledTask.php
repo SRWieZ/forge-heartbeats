@@ -47,7 +47,7 @@ class ScheduledTask
             // Extract just the command name (first word after artisan)
             $parts = explode(' ', $afterArtisan);
 
-            return $parts[0] ?? $afterArtisan;
+            return $parts[0];
         }
 
         // If no artisan found, try to extract command from the full string
