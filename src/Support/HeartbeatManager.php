@@ -45,12 +45,13 @@ class HeartbeatManager
     public function getHeartbeats(bool $forceRefresh = false): array
     {
         $cacheKey = config('forge-heartbeats.cache.prefix') . ':heartbeats';
+        $cacheStore = Cache::store(config('forge-heartbeats.cache.store'));
 
         if ($forceRefresh) {
-            Cache::forget($cacheKey);
+            $cacheStore->forget($cacheKey);
         }
 
-        return Cache::rememberForever($cacheKey, function () {
+        return $cacheStore->rememberForever($cacheKey, function () {
             return $this->forgeClient->listHeartbeats();
         });
     }

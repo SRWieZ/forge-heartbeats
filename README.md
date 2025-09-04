@@ -40,6 +40,9 @@ FORGE_SITE_ID=67890
 
 # Optional: Default grace period for heartbeats (default: 5 minutes)
 FORGE_HEARTBEAT_GRACE_PERIOD=5
+
+# Optional: Custom cache store for heartbeat data (default: uses Laravel's default cache)
+FORGE_HEARTBEAT_CACHE_STORE=redis
 ```
 
 ### Getting Your Credentials

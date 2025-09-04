@@ -53,6 +53,7 @@ return [
      * This helps reduce the number of API calls to Forge.
      */
     'cache' => [
+        'store' => env('FORGE_HEARTBEAT_CACHE_STORE'),
         'prefix' => 'forge_heartbeats',
     ],
 
