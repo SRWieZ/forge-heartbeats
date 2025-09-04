@@ -13,7 +13,7 @@ use function Termwind\render;
 
 class ListCommand extends Command
 {
-    protected $signature = 'forge:heartbeats:list';
+    protected $signature = 'forge-heartbeats:list';
 
     protected $description = 'Display all Forge heartbeats and their status';
 

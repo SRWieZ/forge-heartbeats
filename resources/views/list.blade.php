@@ -137,5 +137,5 @@
 @endif
 
 <div class="mx-2 my-1">
-    <div class="text-gray">Run <span class="text-blue">php artisan forge:heartbeats:sync</span> to synchronize your schedule with Forge</div>
+    <div class="text-gray">Run <span class="text-blue">php artisan forge-heartbeats:sync</span> to synchronize your schedule with Forge</div>
 </div>

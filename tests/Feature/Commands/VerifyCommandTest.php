@@ -13,7 +13,7 @@ it('can verify configuration and connectivity', function () {
     config(['forge-heartbeats.queue.connection' => 'sync']);
     config(['forge-heartbeats.queue.name' => 'default']);
 
-    $this->artisan('forge:heartbeats:verify')
+    $this->artisan('forge-heartbeats:verify')
         ->assertExitCode(0);
 });
 
@@ -24,7 +24,7 @@ it('fails when configuration is missing', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge:heartbeats:verify')
+    $this->artisan('forge-heartbeats:verify')
         ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
         ->expectsOutput('🔧 Checking configuration...')
         ->assertExitCode(1);
@@ -37,7 +37,7 @@ it('handles authentication errors', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge:heartbeats:verify')
+    $this->artisan('forge-heartbeats:verify')
         ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
         ->expectsOutput('🔧 Checking configuration...')
         ->assertExitCode(1);
@@ -49,7 +49,7 @@ it('handles missing organization config', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge:heartbeats:verify')
+    $this->artisan('forge-heartbeats:verify')
         ->assertExitCode(1);
 });
 
@@ -59,6 +59,6 @@ it('handles missing server id config', function () {
     config(['forge-heartbeats.server_id' => null]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge:heartbeats:verify')
+    $this->artisan('forge-heartbeats:verify')
         ->assertExitCode(1);
 });

@@ -9,7 +9,7 @@ use SRWieZ\ForgeHeartbeats\Exceptions\InvalidConfigException;
 
 class VerifyCommand extends Command
 {
-    protected $signature = 'forge:heartbeats:verify';
+    protected $signature = 'forge-heartbeats:verify';
 
     protected $description = 'Verify Forge heartbeats configuration and connectivity';
 

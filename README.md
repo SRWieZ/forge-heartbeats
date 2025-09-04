@@ -58,7 +58,7 @@ After configuring your environment variables, sync your scheduled tasks:
 This should run after every deployment to keep heartbeats up to date.
 
 ```bash
-php artisan forge:heartbeats:sync
+php artisan forge-heartbeats:sync
 ```
 
 This command will:
@@ -71,7 +71,7 @@ This command will:
 View the status of all your heartbeats:
 
 ```bash
-php artisan forge:heartbeats:list
+php artisan forge-heartbeats:list
 ```
 
 ### 3. Verify Configuration
@@ -79,7 +79,7 @@ php artisan forge:heartbeats:list
 Test your Forge connection:
 
 ```bash
-php artisan forge:heartbeats:verify
+php artisan forge-heartbeats:verify
 ```
 
 ### 4. Customize Your Tasks
@@ -120,7 +120,7 @@ Add the sync command to your deployment process:
 
 ```bash
 # After migrations and other setup
-php artisan forge:heartbeats:sync
+php artisan forge-heartbeats:sync
 ```
 
 ### Keep Old Heartbeats
@@ -128,7 +128,7 @@ php artisan forge:heartbeats:sync
 If you monitor non-Laravel cron jobs in Forge, use the `--keep-old` flag to avoid deleting them:
 
 ```bash
-php artisan forge:heartbeats:sync --keep-old
+php artisan forge-heartbeats:sync --keep-old
 ```
 
 ## Testing

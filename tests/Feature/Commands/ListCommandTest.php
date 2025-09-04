@@ -15,13 +15,13 @@ it('can list heartbeats and tasks', function () {
         $schedule->command('inspire')->cron('0 * * * *');
     });
 
-    $this->artisan('forge:heartbeats:list')
+    $this->artisan('forge-heartbeats:list')
         ->expectsOutput('🔍 Fetching heartbeats from Forge...')
         ->assertExitCode(0);
 });
 
 it('handles empty heartbeats and tasks', function () {
-    $this->artisan('forge:heartbeats:list')
+    $this->artisan('forge-heartbeats:list')
         ->expectsOutput('🔍 Fetching heartbeats from Forge...')
         ->assertExitCode(0);
 });
@@ -32,7 +32,7 @@ it('handles configuration errors gracefully', function () {
 
     config(['forge-heartbeats.api_token' => null]);
 
-    $this->artisan('forge:heartbeats:list')
+    $this->artisan('forge-heartbeats:list')
         ->expectsOutput('🔍 Fetching heartbeats from Forge...')
         ->assertExitCode(1);
 });

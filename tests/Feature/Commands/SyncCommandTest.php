@@ -49,7 +49,7 @@ it('can sync scheduled tasks with forge heartbeats', function () {
 });
 
 it('shows warning when no tasks found', function () {
-    $this->artisan('forge:heartbeats:sync')
+    $this->artisan('forge-heartbeats:sync')
         ->expectsOutput('🔍 Analyzing scheduled tasks...')
         ->expectsOutput('⚠️  No scheduled tasks found to monitor.')
         ->assertExitCode(0);
@@ -65,7 +65,7 @@ it('handles configuration errors gracefully', function () {
         $schedule->command('inspire')->cron('0 * * * *');
     });
 
-    $this->artisan('forge:heartbeats:sync')
+    $this->artisan('forge-heartbeats:sync')
         ->expectsOutput('🔍 Analyzing scheduled tasks...')
         ->assertExitCode(1);
 });

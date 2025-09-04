@@ -10,7 +10,7 @@ use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 
 class SyncCommand extends Command
 {
-    protected $signature = 'forge:heartbeats:sync 
+    protected $signature = 'forge-heartbeats:sync 
                            {--keep-old : Keep heartbeats that no longer have matching scheduled tasks}';
 
     protected $description = 'Sync Laravel scheduled tasks with Forge heartbeats';
