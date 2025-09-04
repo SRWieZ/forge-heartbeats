@@ -83,7 +83,7 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
             });
         });
 
-        SchedulerEvent::macro('doNotMonitorAtForge', function (bool $skip = true) {
+        SchedulerEvent::macro('doNotMonitorOnForge', function (bool $skip = true) {
             return $this->then(function () use ($skip) {
                 app(HeartbeatManager::class)->setSkipMonitoring($this, $skip);
             });
