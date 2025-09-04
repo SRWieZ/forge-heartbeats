@@ -3,8 +3,6 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
-use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\ForgeApiException;
-use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 
@@ -19,56 +17,39 @@ class SyncCommand extends Command
         HeartbeatManager $heartbeatManager,
         ScheduleAnalyzer $scheduleAnalyzer
     ): int {
-        try {
-            $this->info('🔍 Analyzing scheduled tasks...');
+        $this->info('🔍 Analyzing scheduled tasks...');
 
-            $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
-            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
-            $duplicateTasks = $scheduleAnalyzer->getDuplicateTasks($heartbeatManager);
+        $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
+        $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
+        $duplicateTasks = $scheduleAnalyzer->getDuplicateTasks($heartbeatManager);
 
-            if (empty($tasks)) {
-                $this->warn('⚠️  No scheduled tasks found to monitor.');
-
-                return self::SUCCESS;
-            }
-
-            $this->info('📋 Found ' . count($tasks) . ' scheduled task(s) to monitor');
-
-            if (! empty($unnamedTasks)) {
-                $this->warn('⚠️  Found ' . count($unnamedTasks) . ' unnamed task(s) that cannot be monitored');
-            }
-
-            if (! empty($duplicateTasks)) {
-                $this->warn('⚠️  Found duplicate task names: ' . implode(', ', array_keys($duplicateTasks)));
-            }
-
-            $keepOld = $this->option('keep-old');
-
-            $this->info('🔄 Syncing with Forge...');
-
-            $result = $heartbeatManager->syncHeartbeats($keepOld);
-
-            $this->displayResults($result);
-
-            $this->info('✅ Sync completed successfully');
+        if (empty($tasks)) {
+            $this->warn('⚠️  No scheduled tasks found to monitor.');
 
             return self::SUCCESS;
-        } catch (InvalidConfigException $e) {
-            $this->error('❌ Configuration Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        } catch (ForgeApiException $e) {
-            $this->error('❌ Forge API Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        } catch (\Throwable $e) {
-            $this->error('❌ Unexpected Error: ' . $e->getMessage());
-            $this->line('DEBUG: Exception caught: ' . $e->getMessage());
-            $this->line('DEBUG: Exception class: ' . get_class($e));
-            $this->line('DEBUG: Stack trace: ' . $e->getTraceAsString());
-
-            return self::FAILURE;
         }
+
+        $this->info('📋 Found ' . count($tasks) . ' scheduled task(s) to monitor');
+
+        if (! empty($unnamedTasks)) {
+            $this->warn('⚠️  Found ' . count($unnamedTasks) . ' unnamed task(s) that cannot be monitored');
+        }
+
+        if (! empty($duplicateTasks)) {
+            $this->warn('⚠️  Found duplicate task names: ' . implode(', ', array_keys($duplicateTasks)));
+        }
+
+        $keepOld = $this->option('keep-old');
+
+        $this->info('🔄 Syncing with Forge...');
+
+        $result = $heartbeatManager->syncHeartbeats($keepOld);
+
+        $this->displayResults($result);
+
+        $this->info('✅ Sync completed successfully');
+
+        return self::SUCCESS;
     }
 
     private function displayResults(array $result): void

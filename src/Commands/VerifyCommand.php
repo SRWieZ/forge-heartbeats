@@ -17,22 +17,12 @@ class VerifyCommand extends Command
     {
         $this->info('🔍 Verifying Forge heartbeats configuration...');
 
-        try {
-            $this->checkConfiguration();
-            $this->checkConnectivity($forgeClient);
+        $this->checkConfiguration();
+        $this->checkConnectivity($forgeClient);
 
-            $this->info('✅ Configuration verified successfully');
+        $this->info('✅ Configuration verified successfully');
 
-            return self::SUCCESS;
-        } catch (InvalidConfigException $e) {
-            $this->error('❌ Configuration Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        } catch (\Throwable $e) {
-            $this->error('❌ Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        }
+        return self::SUCCESS;
     }
 
     private function checkConfiguration(): void

@@ -33,13 +33,8 @@ it('handles ping failures', function () {
         'finished'
     );
 
-    $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface'));
-
-    Event::assertDispatched(HeartbeatPinged::class, function ($event) {
-        return $event->taskName === 'test-task' &&
-               $event->success === false &&
-               $event->eventType === 'finished';
-    });
+    expect(fn () => $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface')))
+        ->toThrow(Exception::class, 'Failed to ping heartbeat URL: https://forge.laravel.com/api/heartbeat/ping/invalid-url');
 });
 
 it('handles exceptions and retries', function () {

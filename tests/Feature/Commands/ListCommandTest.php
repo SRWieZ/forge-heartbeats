@@ -32,7 +32,6 @@ it('handles configuration errors gracefully', function () {
 
     config(['forge-heartbeats.api_token' => null]);
 
-    $this->artisan('forge-heartbeats:list')
-        ->expectsOutput('🔍 Fetching heartbeats from Forge...')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:list'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });

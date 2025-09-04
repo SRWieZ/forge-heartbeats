@@ -64,9 +64,8 @@ it('handles configuration errors gracefully', function () {
         $schedule->command('inspire')->cron('0 * * * *');
     });
 
-    $this->artisan('forge-heartbeats:sync')
-        ->expectsOutput('🔍 Analyzing scheduled tasks...')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:sync'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });
 
 it('supports keep-old flag', function () {

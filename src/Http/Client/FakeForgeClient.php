@@ -114,11 +114,6 @@ class FakeForgeClient implements ForgeClientInterface
         $this->skipConfigValidation = false;
     }
 
-    public function getHeartbeats(): array
-    {
-        return $this->heartbeats;
-    }
-
     private function validateConfig(): void
     {
         $apiToken = config('forge-heartbeats.api_token');

@@ -14,9 +14,9 @@ class PingHeartbeatJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $tries;
+    public int $tries = 3;
 
-    public int $retryAfter;
+    public int $retryAfter = 60;
 
     public function __construct(
         private string $pingUrl,
@@ -33,6 +33,11 @@ class PingHeartbeatJob implements ShouldQueue
     public function handle(ForgeClientInterface $forgeClient): void
     {
         $success = $forgeClient->pingHeartbeat($this->pingUrl);
+
+        if (! $success) {
+            // If ping failed, throw an exception to trigger the failed() method and retries
+            throw new \Exception("Failed to ping heartbeat URL: {$this->pingUrl}");
+        }
 
         // Dispatch event for monitoring/logging purposes
         HeartbeatPinged::dispatch(

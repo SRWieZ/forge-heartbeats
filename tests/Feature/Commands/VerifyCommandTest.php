@@ -24,10 +24,8 @@ it('fails when configuration is missing', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge-heartbeats:verify')
-        ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
-        ->expectsOutput('🔧 Checking configuration...')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:verify'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });
 
 it('handles authentication errors', function () {
@@ -37,10 +35,8 @@ it('handles authentication errors', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge-heartbeats:verify')
-        ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
-        ->expectsOutput('🔧 Checking configuration...')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:verify'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });
 
 it('handles missing organization config', function () {
@@ -49,8 +45,8 @@ it('handles missing organization config', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge-heartbeats:verify')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:verify'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });
 
 it('handles missing server id config', function () {
@@ -59,6 +55,6 @@ it('handles missing server id config', function () {
     config(['forge-heartbeats.server_id' => null]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    $this->artisan('forge-heartbeats:verify')
-        ->assertExitCode(1);
+    expect(fn () => $this->artisan('forge-heartbeats:verify'))
+        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });

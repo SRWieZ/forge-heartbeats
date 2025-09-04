@@ -3,8 +3,6 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
-use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\ForgeApiException;
-use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
 use SRWieZ\ForgeHeartbeats\Support\TaskMatcher;
@@ -22,37 +20,23 @@ class ListCommand extends Command
         ScheduleAnalyzer $scheduleAnalyzer,
         TaskMatcher $taskMatcher
     ): int {
-        try {
-            $this->info('🔍 Fetching heartbeats from Forge...');
+        $this->info('🔍 Fetching heartbeats from Forge...');
 
-            $heartbeats = $heartbeatManager->getHeartbeats();
-            $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
-            $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
+        $heartbeats = $heartbeatManager->getHeartbeats();
+        $tasks = $scheduleAnalyzer->getNamedTasks($heartbeatManager);
+        $unnamedTasks = $scheduleAnalyzer->getUnnamedTasks($heartbeatManager);
 
-            if (empty($heartbeats) && empty($tasks)) {
-                $this->warn('⚠️  No heartbeats found and no scheduled tasks to monitor.');
-
-                return self::SUCCESS;
-            }
-
-            $matchResult = $taskMatcher->match($tasks, $heartbeats);
-
-            $this->displayHeartbeats($matchResult, $unnamedTasks);
+        if (empty($heartbeats) && empty($tasks)) {
+            $this->warn('⚠️  No heartbeats found and no scheduled tasks to monitor.');
 
             return self::SUCCESS;
-        } catch (InvalidConfigException $e) {
-            $this->error('❌ Configuration Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        } catch (ForgeApiException $e) {
-            $this->error('❌ Forge API Error: ' . $e->getMessage());
-
-            return self::FAILURE;
-        } catch (\Throwable $e) {
-            $this->error('❌ Unexpected Error: ' . $e->getMessage());
-
-            return self::FAILURE;
         }
+
+        $matchResult = $taskMatcher->match($tasks, $heartbeats);
+
+        $this->displayHeartbeats($matchResult, $unnamedTasks);
+
+        return self::SUCCESS;
     }
 
     private function displayHeartbeats(array $matchResult, array $unnamedTasks): void
