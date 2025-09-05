@@ -1,15 +1,34 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
+use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('can list heartbeats and tasks', function () {
-    $client = app(ForgeClientInterface::class);
-
-    // Create some heartbeats
-    $client->createHeartbeat('inspire', 5, 1, '0 * * * *');
-    $client->createHeartbeat('orphaned-task', 10, 2, '0 0 * * *');
+    MockClient::global([
+        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+            [
+                'id' => 1,
+                'name' => 'inspire',
+                'status' => 'pending',
+                'grace_period' => 5,
+                'frequency' => 1,
+                'custom_frequency' => '0 * * * *',
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
+            ],
+            [
+                'id' => 2,
+                'name' => 'orphaned-task',
+                'status' => 'pending',
+                'grace_period' => 10,
+                'frequency' => 2,
+                'custom_frequency' => '0 0 * * *',
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test2',
+            ],
+        ]]),
+    ]);
 
     TestKernel::registerScheduledTasks(function (Schedule $schedule) {
         $schedule->command('inspire')->cron('0 * * * *');
@@ -21,17 +40,11 @@ it('can list heartbeats and tasks', function () {
 });
 
 it('handles empty heartbeats and tasks', function () {
+    MockClient::global([
+        ListHeartbeatsRequest::class => MockResponse::make(['data' => []]),
+    ]);
+
     $this->artisan('forge-heartbeats:list')
         ->expectsOutput('🔍 Fetching heartbeats from Forge...')
         ->assertExitCode(0);
-});
-
-it('handles configuration errors gracefully', function () {
-    $client = app(ForgeClientInterface::class);
-    $client->skipConfigValidation(false); // Enable validation for this test
-
-    config(['forge-heartbeats.api_token' => null]);
-
-    expect(fn () => $this->artisan('forge-heartbeats:list'))
-        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
 });

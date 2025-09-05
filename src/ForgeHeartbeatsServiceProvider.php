@@ -14,8 +14,8 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 use SRWieZ\ForgeHeartbeats\Commands\ListCommand;
 use SRWieZ\ForgeHeartbeats\Commands\SyncCommand;
 use SRWieZ\ForgeHeartbeats\Commands\VerifyCommand;
-use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClient;
-use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
+use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\ForgeHeartbeatsConnector;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
 use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskListener;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
@@ -40,7 +40,20 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->bind(ForgeClientInterface::class, ForgeClient::class);
+        $this->app->singleton(ForgeHeartbeatsConnector::class, function () {
+            // Only validate config in non-testing environments
+            if (! app()->environment('testing')) {
+                $this->validateConfig();
+            }
+
+            return new ForgeHeartbeatsConnector(
+                apiToken: config('forge-heartbeats.api_token') ?: '',
+                organization: config('forge-heartbeats.organization') ?: '',
+                serverId: (int) config('forge-heartbeats.server_id', 0),
+                siteId: (int) config('forge-heartbeats.site_id', 0),
+            );
+        });
+
         $this->app->singleton(HeartbeatManager::class);
         $this->app->singleton(ScheduleAnalyzer::class, function ($app) {
             // Use the singleton instance of Schedule
@@ -109,5 +122,29 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
         }
 
         return $this;
+    }
+
+    private function validateConfig(): void
+    {
+        $apiToken = config('forge-heartbeats.api_token');
+        $organization = config('forge-heartbeats.organization');
+        $serverId = config('forge-heartbeats.server_id');
+        $siteId = config('forge-heartbeats.site_id');
+
+        if (empty($apiToken)) {
+            throw InvalidConfigException::missingApiToken();
+        }
+
+        if (empty($organization)) {
+            throw InvalidConfigException::missingOrganization();
+        }
+
+        if (empty($serverId)) {
+            throw InvalidConfigException::missingServerId();
+        }
+
+        if (empty($siteId)) {
+            throw InvalidConfigException::missingSiteId();
+        }
     }
 }

@@ -17,7 +17,7 @@ it('can ping heartbeat successfully', function () {
         'finished'
     );
 
-    $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface'));
+    $job->handle();
 
     Event::assertDispatched(HeartbeatPinged::class, function ($event) {
         return $event->taskName === 'test-task' &&
@@ -33,22 +33,8 @@ it('handles ping failures', function () {
         'finished'
     );
 
-    expect(fn () => $job->handle(app('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface')))
+    expect(fn () => $job->handle())
         ->toThrow(Exception::class, 'Failed to ping heartbeat URL: https://forge.laravel.com/api/heartbeat/ping/invalid-url');
-});
-
-it('handles exceptions and retries', function () {
-    $client = Mockery::mock('SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface');
-    $client->shouldReceive('pingHeartbeat')
-        ->andThrow(new Exception('Network error'));
-
-    $job = new PingHeartbeatJob(
-        'https://forge.laravel.com/api/heartbeat/ping/test123',
-        'test-task',
-        'finished'
-    );
-
-    expect(fn () => $job->handle($client))->toThrow(Exception::class);
 });
 
 it('handles job failure after retries', function () {
