@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use SRWieZ\ForgeHeartbeats\Events\HeartbeatPinged;
-use SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface;
+use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\PingHeartbeatRequest;
 
 class PingHeartbeatJob implements ShouldQueue
 {
@@ -30,9 +30,12 @@ class PingHeartbeatJob implements ShouldQueue
         $this->onConnection(config('forge-heartbeats.queue.connection', 'default'));
     }
 
-    public function handle(ForgeClientInterface $forgeClient): void
+    public function handle(): void
     {
-        $success = $forgeClient->pingHeartbeat($this->pingUrl);
+        $request = new PingHeartbeatRequest($this->pingUrl);
+        $response = $request->send();
+
+        $success = $response->successful();
 
         if (! $success) {
             // If ping failed, throw an exception to trigger the failed() method and retries

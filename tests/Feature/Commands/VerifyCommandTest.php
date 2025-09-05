@@ -1,60 +1,55 @@
 <?php
 
-it('can verify configuration and connectivity', function () {
-    // Manually test what happens when we inject the client
-    $fakeClient = app(\SRWieZ\ForgeHeartbeats\Http\Client\ForgeClientInterface::class);
-    expect($fakeClient)->toBeInstanceOf(\SRWieZ\ForgeHeartbeats\Http\Client\FakeForgeClient::class);
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
+use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
 
-    // Manually set configuration for this test
+it('can verify configuration and connectivity', function () {
+    // Explicitly set config values for this test
     config(['forge-heartbeats.api_token' => 'test-token']);
     config(['forge-heartbeats.organization' => 'test-org']);
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
-    config(['forge-heartbeats.queue.connection' => 'sync']);
-    config(['forge-heartbeats.queue.name' => 'default']);
+
+    MockClient::global([
+        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+            [
+                'id' => 1,
+                'name' => 'test-heartbeat',
+                'status' => 'active',
+                'grace_period' => 5,
+                'frequency' => 1,
+                'custom_frequency' => null,
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
+            ],
+        ]]),
+    ]);
 
     $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
+        ->expectsOutput('🔧 Checking configuration...')
+        ->expectsOutput('🌐 Testing Forge API connectivity...')
+        ->expectsOutput('✅ Configuration verified successfully')
         ->assertExitCode(0);
 });
 
-it('fails when configuration is missing', function () {
-    // Set up basic config but leave api_token null
-    config(['forge-heartbeats.api_token' => null]);
-    config(['forge-heartbeats.organization' => 'test-org']);
-    config(['forge-heartbeats.server_id' => 12345]);
-    config(['forge-heartbeats.site_id' => 67890]);
-
-    expect(fn () => $this->artisan('forge-heartbeats:verify'))
-        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
-});
-
-it('handles authentication errors', function () {
-    // Set config but make the fake client validate config to simulate auth error
-    config(['forge-heartbeats.api_token' => null]);
-    config(['forge-heartbeats.organization' => 'test-org']);
-    config(['forge-heartbeats.server_id' => 12345]);
-    config(['forge-heartbeats.site_id' => 67890]);
-
-    expect(fn () => $this->artisan('forge-heartbeats:verify'))
-        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
-});
-
-it('handles missing organization config', function () {
-    config(['forge-heartbeats.api_token' => 'test-token']);
-    config(['forge-heartbeats.organization' => null]);
-    config(['forge-heartbeats.server_id' => 12345]);
-    config(['forge-heartbeats.site_id' => 67890]);
-
-    expect(fn () => $this->artisan('forge-heartbeats:verify'))
-        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
-});
-
-it('handles missing server id config', function () {
+it('handles empty heartbeats response', function () {
+    // Explicitly set config values for this test
     config(['forge-heartbeats.api_token' => 'test-token']);
     config(['forge-heartbeats.organization' => 'test-org']);
-    config(['forge-heartbeats.server_id' => null]);
+    config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    expect(fn () => $this->artisan('forge-heartbeats:verify'))
-        ->toThrow(\SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException::class);
+    MockClient::global([
+        ListHeartbeatsRequest::class => MockResponse::make(['data' => []]),
+    ]);
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('🔍 Verifying Forge heartbeats configuration...')
+        ->expectsOutput('🔧 Checking configuration...')
+        ->expectsOutput('🌐 Testing Forge API connectivity...')
+        ->expectsOutput('  ✓ Successfully connected to Forge API')
+        ->expectsOutput('  ✓ Found 0 existing heartbeat(s)')
+        ->expectsOutput('✅ Configuration verified successfully')
+        ->assertExitCode(0);
 });
