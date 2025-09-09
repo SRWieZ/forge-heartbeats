@@ -3,6 +3,7 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
+use SRWieZ\ForgeHeartbeats\Enums\HeartbeatStatus;
 use SRWieZ\ForgeHeartbeats\Http\Client\FrequencyEnum;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
 use SRWieZ\ForgeHeartbeats\Support\ScheduleAnalyzer;
@@ -47,13 +48,8 @@ class ListCommand extends Command
 
             $rows = [];
             foreach ($matchResult['matched'] as $match) {
-                $status = $match['heartbeat']->status;
-                $icon = match ($status) {
-                    'pending' => '⏳',
-                    'up' => '✅',
-                    'down' => '❌',
-                    default => '❓'
-                };
+                $status = HeartbeatStatus::tryFrom($match['heartbeat']->status);
+                $statusDisplay = $status?->displayText() ?? '❓ ' . ucfirst($match['heartbeat']->status);
 
                 // Check if task and heartbeat are synced
                 $isSynced = $this->isTaskSynced($match['task'], $match['heartbeat']);
@@ -61,7 +57,7 @@ class ListCommand extends Command
 
                 $rows[] = [
                     $match['task']->getDisplayName(),
-                    "{$icon} " . ucfirst($status),
+                    $statusDisplay,
                     $match['task']->cronExpression,
                     $match['heartbeat']->gracePeriod . 'min',
                     $syncStatus,
@@ -93,15 +89,10 @@ class ListCommand extends Command
 
             $rows = [];
             foreach ($matchResult['orphaned_heartbeats'] as $heartbeat) {
-                $status = $heartbeat->status;
-                $icon = match ($status) {
-                    'pending' => '⏳',
-                    'up' => '✅',
-                    'down' => '❌',
-                    default => '❓'
-                };
+                $status = HeartbeatStatus::tryFrom($heartbeat->status);
+                $statusDisplay = $status?->displayText() ?? '❓ ' . ucfirst($heartbeat->status);
 
-                $rows[] = [$heartbeat->name, "{$icon} " . ucfirst($status), '🗑️  Orphaned'];
+                $rows[] = [$heartbeat->name, $statusDisplay, '🗑️  Orphaned'];
             }
 
             $this->table(['Heartbeat', 'Status', 'Synced'], $rows);
