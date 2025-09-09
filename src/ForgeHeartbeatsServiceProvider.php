@@ -84,21 +84,21 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
     protected function registerSchedulerEventMacros(): self
     {
         SchedulerEvent::macro('heartbeatName', function (string $name) {
-            return $this->then(function () use ($name) {
-                TaskMetadataRegistry::setHeartbeatName($this, $name);
-            });
+            TaskMetadataRegistry::setHeartbeatName($this, $name);
+
+            return $this;
         });
 
         SchedulerEvent::macro('graceTimeInMinutes', function (int $minutes) {
-            return $this->then(function () use ($minutes) {
-                TaskMetadataRegistry::setGraceTime($this, $minutes);
-            });
+            TaskMetadataRegistry::setGraceTime($this, $minutes);
+
+            return $this;
         });
 
         SchedulerEvent::macro('doNotMonitorOnForge', function (bool $skip = true) {
-            return $this->then(function () use ($skip) {
-                TaskMetadataRegistry::setSkipMonitoring($this, $skip);
-            });
+            TaskMetadataRegistry::setSkipMonitoring($this, $skip);
+
+            return $this;
         });
 
         return $this;

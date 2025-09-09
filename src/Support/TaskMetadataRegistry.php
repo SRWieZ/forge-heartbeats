@@ -3,23 +3,21 @@
 namespace SRWieZ\ForgeHeartbeats\Support;
 
 use Illuminate\Console\Scheduling\Event;
-use WeakMap;
 
 class TaskMetadataRegistry
 {
-    private static WeakMap $metadata;
+    private static array $metadata = [];
 
-    private static function getRegistry(): WeakMap
+    private static function getEventKey(Event $event): string
     {
-        return self::$metadata ??= new WeakMap;
+        // Create a unique key based on command and expression
+        return md5($event->command . '|' . $event->expression);
     }
 
     private static function setMetadata(Event $event, string $key, mixed $value): void
     {
-        $registry = self::getRegistry();
-        $eventMetadata = $registry[$event] ?? [];
-        $eventMetadata[$key] = $value;
-        $registry[$event] = $eventMetadata;
+        $eventKey = self::getEventKey($event);
+        self::$metadata[$eventKey][$key] = $value;
     }
 
     public static function setHeartbeatName(Event $event, string $name): void
@@ -39,13 +37,13 @@ class TaskMetadataRegistry
 
     public static function getTaskMetadata(Event $event): array
     {
-        $registry = self::getRegistry();
+        $eventKey = self::getEventKey($event);
 
-        return $registry[$event] ?? [];
+        return self::$metadata[$eventKey] ?? [];
     }
 
     public static function clear(): void
     {
-        self::$metadata = new WeakMap;
+        self::$metadata = [];
     }
 }
