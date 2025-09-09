@@ -30,7 +30,6 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
         $package
             ->name('forge-heartbeats')
             ->hasConfigFile()
-            ->hasViews()
             ->hasCommands([
                 ListCommand::class,
                 SyncCommand::class,
