@@ -27,8 +27,8 @@ return [
      * Pings are queued to avoid blocking scheduled task execution.
      */
     'queue' => [
-        'connection' => env('FORGE_HEARTBEAT_QUEUE_CONNECTION', 'default'),
-        'name' => env('FORGE_HEARTBEAT_QUEUE', 'default'),
+        'connection' => env('FORGE_HEARTBEAT_QUEUE_CONNECTION'),
+        'name' => env('FORGE_HEARTBEAT_QUEUE'),
         'retry_after' => 60, // seconds
         'max_attempts' => 3,
     ],

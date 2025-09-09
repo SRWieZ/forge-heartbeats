@@ -26,8 +26,14 @@ class PingHeartbeatJob implements ShouldQueue
         $this->tries = config('forge-heartbeats.queue.max_attempts', 3);
         $this->retryAfter = config('forge-heartbeats.queue.retry_after', 60);
 
-        $this->onQueue(config('forge-heartbeats.queue.name', 'default'));
-        $this->onConnection(config('forge-heartbeats.queue.connection', 'default'));
+        // Use Laravel's default queue connection if not specified
+        if ($queueName = config('forge-heartbeats.queue.name')) {
+            $this->onQueue($queueName);
+        }
+
+        if ($connection = config('forge-heartbeats.queue.connection')) {
+            $this->onConnection($connection);
+        }
     }
 
     public function handle(): void
