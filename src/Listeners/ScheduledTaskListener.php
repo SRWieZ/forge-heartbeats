@@ -18,19 +18,17 @@ class ScheduledTaskListener
         private HeartbeatManager $heartbeatManager
     ) {}
 
-    public function handleBackgroundTaskFinished(ScheduledBackgroundTaskFinished $event): void
-    {
-        $this->pingHeartbeat($event->task, 'finished');
-    }
+    public function handle(
+        ScheduledTaskFinished|ScheduledBackgroundTaskFinished|ScheduledTaskFailed $event
+    ): void {
+        // Determine the event type and set the appropriate status
+        $eventType = match (true) {
+            $event instanceof ScheduledTaskFailed => 'failed',
+            $event instanceof ScheduledTaskFinished,
+            $event instanceof ScheduledBackgroundTaskFinished => 'finished',
+        };
 
-    public function handleTaskFinished(ScheduledTaskFinished $event): void
-    {
-        $this->pingHeartbeat($event->task, 'finished');
-    }
-
-    public function handleTaskFailed(ScheduledTaskFailed $event): void
-    {
-        $this->pingHeartbeat($event->task, 'failed');
+        $this->pingHeartbeat($event->task, $eventType);
     }
 
     private function pingHeartbeat(Event $event, string $eventType): void
