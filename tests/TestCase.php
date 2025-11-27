@@ -21,7 +21,7 @@ use function Termwind\renderUsing;
 
 class TestCase extends Orchestra
 {
-    protected static ?\Illuminate\Testing\TestResponse $latestResponse = null;
+    public static ?\Illuminate\Testing\TestResponse $latestResponse = null;
 
     protected MockClient $mockClient;
 
