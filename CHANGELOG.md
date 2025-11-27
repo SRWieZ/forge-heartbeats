@@ -2,6 +2,14 @@
 
 All notable changes to `srwiez/forge-heartbeats` will be documented in this file.
 
+## v1.1.0 - 2025-11-27
+
+### What's Changed
+
+* feat: add support for PHP 8.5 by @SRWieZ in https://github.com/SRWieZ/forge-heartbeats/pull/2
+
+**Full Changelog**: https://github.com/SRWieZ/forge-heartbeats/compare/v1.0.0...v1.1.0
+
 ## v1.0.0 - 2025-09-11
 
 **Laravel Forge Heartbeats v1.0.0**
