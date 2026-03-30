@@ -2,6 +2,15 @@
 
 All notable changes to `srwiez/forge-heartbeats` will be documented in this file.
 
+## v1.2.0 - 2026-03-30
+
+### Release Notes
+
+* chore: drop support for PHP 8.1 in [`3090392`](https://github.com/SRWieZ/forge-heartbeats/commit/3090392c2e295eccb65fcf00193fe8a33b21a928)
+* fix: update saloonphp to 4.0 in [`f6d1ebc`](https://github.com/SRWieZ/forge-heartbeats/commit/f6d1ebc91e59e68d982b889cbbb0d28a428c8643)
+
+**Full Changelog**: https://github.com/SRWieZ/forge-heartbeats/compare/v1.1.0..v1.2.0
+
 ## v1.1.0 - 2025-11-27
 
 ### What's Changed
