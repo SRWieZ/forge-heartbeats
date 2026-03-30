@@ -2,6 +2,12 @@
 
 All notable changes to `srwiez/forge-heartbeats` will be documented in this file.
 
+## v1.2.1 - 2026-03-30
+
+fix: remove saloon v3 entirely
+
+**Full Changelog**: https://github.com/SRWieZ/forge-heartbeats/compare/v1.2.0...v1.2.1
+
 ## v1.2.0 - 2026-03-30
 
 ### Release Notes
