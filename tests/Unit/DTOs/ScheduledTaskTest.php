@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Event;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
 
 it('can create scheduled task from scheduler event', function () {
@@ -17,14 +18,14 @@ it('can create scheduled task from scheduler event', function () {
 
 it('extracts command name correctly', function () {
     // Create proper mock Event objects
-    $event1 = Mockery::mock(\Illuminate\Console\Scheduling\Event::class);
+    $event1 = Mockery::mock(Event::class);
     $event1->command = '/usr/bin/php /var/www/artisan inspire';
     $event1->expression = '0 * * * *';
 
     $task1 = ScheduledTask::fromSchedulerEvent($event1);
     expect($task1->name)->toBe('inspire');
 
-    $event2 = Mockery::mock(\Illuminate\Console\Scheduling\Event::class);
+    $event2 = Mockery::mock(Event::class);
     $event2->command = 'php artisan queue:work --stop-when-empty';
     $event2->expression = '0 * * * *';
 

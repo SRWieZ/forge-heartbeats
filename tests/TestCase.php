@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
+use Saloon\Http\PendingRequest;
 use SRWieZ\ForgeHeartbeats\ForgeHeartbeatsServiceProvider;
 use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\CreateHeartbeatRequest;
 use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\DeleteHeartbeatRequest;
@@ -101,7 +102,7 @@ class TestCase extends Orchestra
                 return MockResponse::make(['data' => $heartbeat]);
             },
             DeleteHeartbeatRequest::class => MockResponse::make('', 204),
-            PingHeartbeatRequest::class => function (\Saloon\Http\PendingRequest $pendingRequest) {
+            PingHeartbeatRequest::class => function (PendingRequest $pendingRequest) {
                 // Simulate failure for invalid URLs, success for test URLs
                 $request = $pendingRequest->getRequest();
                 $endpoint = $request->resolveEndpoint();
