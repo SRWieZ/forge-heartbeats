@@ -2,6 +2,13 @@
 
 All notable changes to `srwiez/forge-heartbeats` will be documented in this file.
 
+## v1.3.0 - 2026-05-19
+
+- Restore Laravel 10 support by widening saloonphp constraints to `^3.0 || ^4.0` (#3)
+- CI / supply-chain hardening in response to Composer CVE-2026-45793 (#3)
+
+**Full Changelog**: https://github.com/SRWieZ/forge-heartbeats/compare/v1.2.1...v1.3.0
+
 ## v1.2.1 - 2026-03-30
 
 fix: remove saloon v3 entirely
