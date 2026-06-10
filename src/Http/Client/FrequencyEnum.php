@@ -16,10 +16,17 @@ enum FrequencyEnum: int
 
     /**
      * Map a cron expression to a frequency.
+     * Treat any once-per-day cron as DAILY.
      * Returns CUSTOM if the cron doesn't match a standard pattern.
      */
     public static function fromCronExpression(string $cronExpression): self
     {
+        // Treat any once-per-day cron as DAILY.
+        // Example: 0 10 * * * (which is 10 am everyday)
+        if (preg_match('/^([0-5]?\d) ([01]?\d|2[0-3]) \* \* \*$/', $cronExpression) === 1) {
+            return self::DAILY;
+        }
+        
         return match ($cronExpression) {
             '* * * * *' => self::EVERY_MINUTE,
             '*/5 * * * *' => self::EVERY_5_MINUTES,
