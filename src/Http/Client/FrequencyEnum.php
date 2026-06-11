@@ -23,7 +23,15 @@ enum FrequencyEnum: int
     {
         // Treat any once-per-day cron as DAILY.
         // Example: 0 10 * * * (which is 10 am everyday)
-        if (preg_match('/^([0-5]?\d) ([01]?\d|2[0-3]) \* \* \*$/', $cronExpression) === 1) {
+
+        // Also matches the following:
+        
+        // 0 8 * * *
+        // 0 12 * * *
+        // 0 12,18 * * *
+        // 0 8,10,12,20 * * *
+
+        if (preg_match('/^0 ((?:[01]?\d|2[0-3])(?:,(?:[01]?\d|2[0-3]))*) \* \* \*$/', $cronExpression) === 1) {
             return self::DAILY;
         }
         
