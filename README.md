@@ -4,6 +4,7 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/srwiez/forge-heartbeats/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/srwiez/forge-heartbeats/actions?query=workflow%3Atests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/srwiez/forge-heartbeats/static-analysis.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/srwiez/forge-heartbeats/actions?query=workflow%3A"static-analysis"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/srwiez/forge-heartbeats.svg?style=flat-square)](https://packagist.org/packages/srwiez/forge-heartbeats)
+[![Laravel Version Compatibility](https://badge.laravel.cloud/badge/srwiez/forge-heartbeats?style=flat)](https://packagist.org/packages/srwiez/forge-heartbeats)
 
 Monitor your Laravel scheduled commands with **Laravel Forge Heartbeats**. 
 
