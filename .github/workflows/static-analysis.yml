@@ -38,6 +38,13 @@ jobs:
       - name: Install composer dependencies
         run: composer install --prefer-dist --no-interaction
 
+      - name: Cache PHPStan result cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/phpstan
+          key: ${{ runner.os }}-8.4-phpstan-${{ github.run_id }}
+          restore-keys: ${{ runner.os }}-8.4-phpstan-
+
       - name: Run PHPStan
         run: vendor/bin/phpstan --error-format=github
 
