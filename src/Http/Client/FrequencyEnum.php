@@ -15,14 +15,20 @@ enum FrequencyEnum: int
     case CUSTOM = -1;
 
     /**
-     * Map a cron expression to a frequency.
-     * Treat any once-per-day cron as DAILY.
-     * Returns CUSTOM if the cron doesn't match a standard pattern.
+     * Map a cron expression to a frequency. Returns CUSTOM if the cron doesn't match a standard pattern.
+     *
+     * DAILY covers every cron that runs at a fixed minute, every day, at one hour or at an explicit
+     * list of hours: "0 0 * * *", "30 8 * * *" (dailyAt('8:30')), "0 1,13 * * *" (twiceDaily()).
+     * A schedule that runs several times a day this way is still monitored with Forge's 24-hour
+     * window, so Forge only alerts once no run has pinged for a whole day (plus the grace period).
+     *
+     * Step and range expressions are not expanded and stay CUSTOM, so the same schedule can map
+     * differently depending on how it is written: "0 0,6,12,18 * * *" is DAILY, while
+     * everySixHours() (a "/6" step on the hour field) and "0 8-17 * * *" are CUSTOM.
      */
     public static function fromCronExpression(string $cronExpression): self
     {
-        // A fixed minute (0-59) at one hour or a list of hours (0-23), every day: "30 8 * * *".
-        // Multi-hour schedules such as "0 12,18 * * *" are treated as DAILY too.
+        // Fixed minute (0-59), one hour or a comma-separated list of hours (0-23), every day
         if (preg_match('/^[0-5]?\d (?:[01]?\d|2[0-3])(?:,(?:[01]?\d|2[0-3]))* \* \* \*$/', $cronExpression) === 1) {
             return self::DAILY;
         }
@@ -33,7 +39,6 @@ enum FrequencyEnum: int
             '*/10 * * * *' => self::EVERY_10_MINUTES,
             '*/30 * * * *' => self::EVERY_30_MINUTES,
             '0 * * * *' => self::EVERY_HOUR,
-            '0 0 * * *' => self::DAILY,
             '0 0 * * 0' => self::WEEKLY,
             '0 0 1 * *' => self::MONTHLY,
             default => self::CUSTOM,
