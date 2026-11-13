@@ -23,6 +23,12 @@ return [
     'site_id' => env('FORGE_SITE_ID'),
 
     /*
+     * Whether a task that fails (throws or exits with a non-zero code) still pings its heartbeat.
+     * Set to false so Forge reports failing tasks as missing instead of healthy.
+     */
+    'ping_on_failure' => env('FORGE_HEARTBEAT_PING_ON_FAILURE', true),
+
+    /*
      * Queue configuration for heartbeat pings.
      * Pings are queued to avoid blocking scheduled task execution.
      */

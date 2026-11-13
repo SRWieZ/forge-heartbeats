@@ -119,6 +119,16 @@ Schedule::command('cache:clear')
     ->doNotMonitorOnForge();
 ```
 
+### 6. Failed tasks
+
+By default, a task pings its heartbeat even when it fails (throws an exception or exits with a non-zero code), so Forge only alerts you when a task doesn't run at all. To have Forge also report failing tasks as missing, stop pinging on failure:
+
+```env
+FORGE_HEARTBEAT_PING_ON_FAILURE=false
+```
+
+or set `ping_on_failure` to `false` in the published config.
+
 ## 👥 Credits
 
 - [SRWieZ](https://github.com/srwiez)
