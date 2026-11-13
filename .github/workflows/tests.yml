@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   contents: read
@@ -21,7 +21,7 @@ jobs:
         stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: 12.*
-            testbench: 10.8
+            testbench: ^10.8
           - laravel: 13.*
             testbench: 11.*
         exclude:
@@ -41,7 +41,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
-          coverage: xdebug
+          coverage: none
 
       - name: Setup problem matchers
         run: |
@@ -52,8 +52,9 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ matrix.stability }}-composer
+          key: ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ matrix.stability }}-composer-${{ hashFiles('composer.json') }}
           restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ matrix.stability }}-composer-
             ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-${{ matrix.stability }}-
             ${{ runner.os }}-php-${{ matrix.php }}-laravel-${{ matrix.laravel }}-
             ${{ runner.os }}-php-${{ matrix.php }}-
