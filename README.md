@@ -20,6 +20,8 @@ This package automatically syncs your Laravel scheduled commands with Forge hear
 
 ## 🚀 Installation
 
+Requires PHP 8.2+ and Laravel 12 or 13 (Laravel 13 requires PHP 8.3+).
+
 You can install the package via Composer:
 
 ```bash
@@ -91,29 +93,28 @@ This command will:
 Add heartbeat configuration to your scheduled tasks:
 
 ```php
-// app/Console/Kernel.php
+// routes/console.php
 
-protected function schedule(Schedule $schedule)
-{
-    // Basic task - uses command name as heartbeat name
-    $schedule->command('backup:run')->daily();
-    
-    // Custom heartbeat name
-    $schedule->command('reports:generate')
-        ->hourly()
-        ->heartbeatName('hourly-reports');
-    
-    // Custom grace period (time allowed for task to complete)
-    $schedule->command('sync:users')
-        ->daily()
-        ->heartbeatName('user-sync')
-        ->graceTimeInMinutes(30);
-    
-    // Skip monitoring for specific tasks
-    $schedule->command('cache:clear')
-        ->everyMinute()
-        ->doNotMonitorOnForge();
-}
+use Illuminate\Support\Facades\Schedule;
+
+// Basic task - uses command name as heartbeat name
+Schedule::command('backup:run')->daily();
+
+// Custom heartbeat name
+Schedule::command('reports:generate')
+    ->hourly()
+    ->heartbeatName('hourly-reports');
+
+// Custom grace period (time allowed for task to complete)
+Schedule::command('sync:users')
+    ->daily()
+    ->heartbeatName('user-sync')
+    ->graceTimeInMinutes(30);
+
+// Skip monitoring for specific tasks
+Schedule::command('cache:clear')
+    ->everyMinute()
+    ->doNotMonitorOnForge();
 ```
 
 ## 👥 Credits
