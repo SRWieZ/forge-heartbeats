@@ -3,9 +3,15 @@
 namespace SRWieZ\ForgeHeartbeats\Support;
 
 use Illuminate\Console\Scheduling\Event;
+use InvalidArgumentException;
 
 class TaskMetadataRegistry
 {
+    /**
+     * Grace periods, in minutes, that the Forge API accepts.
+     */
+    private const GRACE_PERIODS = [1, 2, 5, 10, 30, 60];
+
     private static array $metadata = [];
 
     private static function getEventKey(Event $event): string
@@ -25,8 +31,17 @@ class TaskMetadataRegistry
         self::setMetadata($event, 'heartbeat_name', $name);
     }
 
+    /**
+     * @throws InvalidArgumentException when Forge does not accept the grace period
+     */
     public static function setGraceTime(Event $event, int $minutes): void
     {
+        if (! in_array($minutes, self::GRACE_PERIODS, true)) {
+            throw new InvalidArgumentException(
+                "graceTimeInMinutes({$minutes}): Forge heartbeats only accept a grace period of 1, 2, 5, 10, 30 or 60 minutes."
+            );
+        }
+
         self::setMetadata($event, 'grace_time', $minutes);
     }
 

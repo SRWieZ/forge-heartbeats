@@ -107,7 +107,7 @@ Schedule::command('reports:generate')
     ->hourly()
     ->heartbeatName('hourly-reports');
 
-// Custom grace period (time allowed for task to complete)
+// Custom grace period (time allowed for task to complete): 1, 2, 5, 10, 30 or 60 minutes
 Schedule::command('sync:users')
     ->daily()
     ->heartbeatName('user-sync')
