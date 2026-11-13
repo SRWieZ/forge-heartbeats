@@ -24,6 +24,8 @@ it('maps once-per-day and multi-hour daily crons to DAILY', function (string $cr
     '59 23 * * *',
     '0 12,18 * * *',
     '0 8,10,12,20 * * *',
+    // An hour list is DAILY even when it spreads runs over the day; the step form '0 */6 * * *' stays CUSTOM
+    '0 0,6,12,18 * * *',
 ]);
 
 it('does not map other crons to DAILY', function (string $cron) {
