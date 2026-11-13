@@ -16,7 +16,7 @@ class PingHeartbeatJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $retryAfter = 60;
+    public int $backoff = 60;
 
     public function __construct(
         private string $pingUrl,
@@ -24,7 +24,8 @@ class PingHeartbeatJob implements ShouldQueue
         private string $eventType = 'finished'
     ) {
         $this->tries = config('forge-heartbeats.queue.max_attempts', 3);
-        $this->retryAfter = config('forge-heartbeats.queue.retry_after', 60);
+        // Configs published before 2.0 only have queue.retry_after
+        $this->backoff = (int) (config('forge-heartbeats.queue.backoff') ?? config('forge-heartbeats.queue.retry_after', 60));
 
         // Use Laravel's default queue connection if not specified
         if ($queueName = config('forge-heartbeats.queue.name')) {

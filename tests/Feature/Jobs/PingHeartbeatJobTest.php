@@ -61,3 +61,32 @@ it('handles job failure after retries', function () {
                $event->error === 'Final failure';
     });
 });
+
+function queuedPayload(PingHeartbeatJob $job): array
+{
+    $queue = app('queue')->connection('sync');
+
+    return json_decode((fn () => $this->createPayload($job, 'default'))->call($queue), true);
+}
+
+it('waits queue.backoff seconds before retrying a failed ping', function () {
+    config()->set('forge-heartbeats.queue.backoff', 15);
+
+    $payload = queuedPayload(new PingHeartbeatJob('https://forge.laravel.com/api/heartbeat/ping/test123', 'test-task'));
+
+    expect($payload['backoff'])->toBe('15');
+});
+
+it('falls back to queue.retry_after when queue.backoff is not set', function () {
+    // A config published before 2.0 has no queue.backoff key
+    config()->set('forge-heartbeats.queue', [
+        'connection' => 'sync',
+        'name' => 'default',
+        'retry_after' => 30,
+        'max_attempts' => 3,
+    ]);
+
+    $payload = queuedPayload(new PingHeartbeatJob('https://forge.laravel.com/api/heartbeat/ping/test123', 'test-task'));
+
+    expect($payload['backoff'])->toBe('30');
+});
