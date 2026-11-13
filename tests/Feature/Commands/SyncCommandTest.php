@@ -209,6 +209,43 @@ it('treats a grace period from .env as an integer', function () {
         && $request->data() === ['name' => 'new-command', 'grace_period' => 5, 'frequency' => 1440]);
 });
 
+it('matches heartbeats and finds orphans on every page', function () {
+    $heartbeat = fn (int $id, string $name) => [
+        'id' => $id,
+        'name' => $name,
+        'status' => 'beating',
+        'grace_period' => 5,
+        'frequency' => 60,
+        'custom_frequency' => null,
+        'ping_url' => "https://forge.laravel.com/api/heartbeat/ping/test{$id}",
+    ];
+
+    Http::fake(function (Request $request) use ($heartbeat) {
+        if ($request->method() === 'DELETE') {
+            return Http::response(null, 204);
+        }
+
+        return match (forgeCursor($request)) {
+            null => Http::response(['data' => [$heartbeat(1, 'inspire')], 'meta' => ['next_cursor' => 'page-2']]),
+            'page-2' => Http::response(['data' => [$heartbeat(2, 'reports:generate'), $heartbeat(3, 'removed-task')], 'meta' => ['next_cursor' => null]]),
+        };
+    });
+
+    TestKernel::registerScheduledTasks(function (Schedule $schedule) {
+        $schedule->command('inspire')->hourly();
+        $schedule->command('reports:generate')->hourly();
+    });
+
+    $this->artisan('forge-heartbeats:sync')
+        ->expectsOutput('🗑️  Deleted 1 heartbeat(s):')
+        ->expectsOutput('  • removed-task')
+        ->assertExitCode(0);
+
+    Http::assertNotSent(fn (Request $request) => $request->method() === 'POST');
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE'
+        && $request->url() === self::FORGE_API_URL . '/3');
+});
+
 it('handles empty scheduled tasks', function () {
     $this->fakeForgeApi([
         'GET /' => Http::response(['data' => []]),

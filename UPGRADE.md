@@ -55,6 +55,7 @@ If your code reads `PingHeartbeatJob::$retryAfter`, use `PingHeartbeatJob::$back
 - **Failed tasks still ping by default.** The new `ping_on_failure` setting (`FORGE_HEARTBEAT_PING_ON_FAILURE`) defaults to `true`, the 1.x behaviour. Set it to `false` if you want Forge to report a task that fails (throws or exits with a non-zero code) as missing.
 - **Fixed: closures and jobs no longer break `schedule:run`.** In 1.x, a finished `Schedule::call()` or `Schedule::job()` task made `schedule:run` throw a `TypeError` and skip the tasks after it. They are now ignored, as `forge-heartbeats:sync` already did.
 - **Fixed: a grace period from `.env` no longer forces updates.** With `FORGE_HEARTBEAT_GRACE_PERIOD` set, 1.x updated every heartbeat on every sync and `forge-heartbeats:list` showed them as "Out of Sync".
+- **Fixed: sites with more than 30 heartbeats.** Forge returns heartbeats 30 per page, and 1.x only read the first page, so sync created duplicates and missed orphans past it. The package now reads every page.
 - **User-Agent.** API requests now send `ForgeHeartbeats/v2.0.0` instead of `ForgeHeartbeats/2.0.0.0`.
 
 ### 6. Sync once after deploying

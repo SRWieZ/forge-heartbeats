@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 
 class ForgeHeartbeatsClient
@@ -18,15 +19,48 @@ class ForgeHeartbeatsClient
     ) {}
 
     /**
+     * Upper bound on pages read by listHeartbeats(), in case Forge keeps returning a next cursor.
+     */
+    protected const MAX_PAGES = 100;
+
+    /**
+     * List every heartbeat of the site, following Forge's cursor pagination.
+     *
      * @return array<Heartbeat>
      *
      * @throws RequestException
+     * @throws RuntimeException when pagination doesn't end
      */
     public function listHeartbeats(): array
     {
-        $data = $this->request()->get('/')->throw()->json('data', []);
+        $heartbeats = [];
+        $seenCursors = [];
+        $cursor = null;
 
-        return array_map(fn (array $heartbeat) => Heartbeat::fromArray($heartbeat), $data);
+        for ($page = 1; $page <= self::MAX_PAGES; $page++) {
+            $response = $this->request()
+                ->get('/', $cursor === null ? [] : ['page[cursor]' => $cursor])
+                ->throw();
+
+            foreach ($response->json('data', []) as $heartbeat) {
+                $heartbeats[] = Heartbeat::fromArray($heartbeat);
+            }
+
+            $cursor = $response->json('meta.next_cursor');
+
+            if (empty($cursor)) {
+                return $heartbeats;
+            }
+
+            if (isset($seenCursors[$cursor])) {
+                throw new RuntimeException('Forge returned the same pagination cursor twice while listing heartbeats.');
+            }
+
+            $seenCursors[$cursor] = true;
+        }
+
+        // A partial list would make sync create duplicates and miss orphans, so fail instead.
+        throw new RuntimeException('Forge returned more than ' . self::MAX_PAGES . ' pages of heartbeats.');
     }
 
     /**
