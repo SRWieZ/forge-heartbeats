@@ -26,6 +26,8 @@ You can install the package via Composer:
 composer require srwiez/forge-heartbeats
 ```
 
+Upgrading from 1.x? Follow the [upgrade guide](UPGRADE.md).
+
 
 ## 📚 Usage
 

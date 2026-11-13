@@ -2,6 +2,18 @@
 
 All notable changes to `srwiez/forge-heartbeats` will be documented in this file.
 
+## v1.4.0 - 2026-05-19
+
+### What's Changed
+
+* Add Laravel 13 compatibility by @stephanus-tantiono in https://github.com/SRWieZ/forge-heartbeats/pull/5
+
+### New Contributors
+
+* @stephanus-tantiono made their first contribution in https://github.com/SRWieZ/forge-heartbeats/pull/5
+
+**Full Changelog**: https://github.com/SRWieZ/forge-heartbeats/compare/v1.3.0...v1.4.0
+
 ## v1.3.0 - 2026-05-19
 
 - Restore Laravel 10 support by widening saloonphp constraints to `^3.0 || ^4.0` (#3)
