@@ -28,6 +28,14 @@ class ScheduledTaskListener
             $event instanceof ScheduledBackgroundTaskFinished => 'finished',
         };
 
+        // A non-zero exit code fires ScheduledTaskFinished before ScheduledTaskFailed,
+        // and background tasks only report failure through their exit code.
+        $failed = $event instanceof ScheduledTaskFailed || ($event->task->exitCode ?? 0) !== 0;
+
+        if ($failed && ! config('forge-heartbeats.ping_on_failure', true)) {
+            return;
+        }
+
         $this->pingHeartbeat($event->task, $eventType);
     }
 
