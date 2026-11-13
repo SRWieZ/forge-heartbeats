@@ -69,8 +69,11 @@ class ForgeHeartbeatsClient
     {
         $version = InstalledVersions::getVersion('srwiez/forge-heartbeats') ?? 'dev-main';
 
+        $apiUrl = rtrim(config('forge-heartbeats.api.base_url') ?: 'https://forge.laravel.com/api', '/');
+
         return Http::baseUrl(sprintf(
-            'https://forge.laravel.com/api/orgs/%s/servers/%d/sites/%d/heartbeats',
+            '%s/orgs/%s/servers/%d/sites/%d/heartbeats',
+            $apiUrl,
             $this->organization,
             $this->serverId,
             $this->siteId

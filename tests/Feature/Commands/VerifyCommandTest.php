@@ -62,3 +62,15 @@ it('reports an invalid API token', function () {
         ->expectsOutput('  Status: 401 Unauthorized - Please check your FORGE_API_TOKEN')
         ->assertExitCode(1);
 });
+
+it('uses the configured API base URL', function () {
+    config(['forge-heartbeats.api.base_url' => 'https://forge-proxy.test/api/']);
+
+    Http::fake([
+        'https://forge-proxy.test/api/orgs/test-org/servers/12345/sites/67890/heartbeats/' => Http::response(['data' => []]),
+    ]);
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('  ✓ Successfully connected to Forge API')
+        ->assertExitCode(0);
+});

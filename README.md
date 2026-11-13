@@ -61,6 +61,8 @@ For more configuration options, publish the config file:
 php artisan vendor:publish --tag="forge-heartbeats-config"
 ```
 
+Among them, `api.base_url` sets the Forge API URL (default `https://forge.laravel.com/api/`), for example to go through a proxy, and `api.timeout` sets the request timeout in seconds.
+
 ### 3. Verify your configuration
 
 Test your Forge connection:
