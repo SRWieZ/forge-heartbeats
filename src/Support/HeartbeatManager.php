@@ -117,13 +117,11 @@ class HeartbeatManager
 
     private function createHeartbeatForTask(ScheduledTask $task): Heartbeat
     {
-        $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-
         $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
         return $this->forgeClient->createHeartbeat(
             name: $task->getDisplayName(),
-            gracePeriod: $gracePeriod,
+            gracePeriod: $task->getGracePeriod(),
             frequency: $frequency->value,
             customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
@@ -131,14 +129,12 @@ class HeartbeatManager
 
     private function updateHeartbeatForTask(ScheduledTask $task, Heartbeat $heartbeat): Heartbeat
     {
-        $gracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-
         $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
         return $this->forgeClient->updateHeartbeat(
             heartbeatId: $heartbeat->id,
             name: $task->getDisplayName(),
-            gracePeriod: $gracePeriod,
+            gracePeriod: $task->getGracePeriod(),
             frequency: $frequency->value,
             customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
@@ -146,10 +142,7 @@ class HeartbeatManager
 
     private function shouldUpdateHeartbeat(ScheduledTask $task, Heartbeat $heartbeat): bool
     {
-        $expectedGracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-        $expectedName = $task->getDisplayName();
-
-        if ($heartbeat->name !== $expectedName || $heartbeat->gracePeriod !== $expectedGracePeriod) {
+        if ($heartbeat->name !== $task->getDisplayName() || $heartbeat->gracePeriod !== $task->getGracePeriod()) {
             return true;
         }
 

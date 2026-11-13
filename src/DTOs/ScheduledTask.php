@@ -62,6 +62,15 @@ class ScheduledTask
         return $this->heartbeatName ?? $this->name;
     }
 
+    /**
+     * Grace period in minutes: the task's own value, else the configured default.
+     * The default is cast because configs published before 2.0 read it with a bare env(), which returns a string.
+     */
+    public function getGracePeriod(): int
+    {
+        return $this->graceTimeInMinutes ?? (int) config('forge-heartbeats.defaults.grace_period', 5);
+    }
+
     public function shouldBeMonitored(): bool
     {
         return ! $this->skipMonitoring;

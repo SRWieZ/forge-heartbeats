@@ -167,6 +167,48 @@ it('ignores closure tasks when syncing', function () {
         ->assertExitCode(0);
 });
 
+it('treats a grace period from .env as an integer', function () {
+    // env() returns strings, e.g. FORGE_HEARTBEAT_GRACE_PERIOD=5 in a published config
+    config()->set('forge-heartbeats.defaults.grace_period', '5');
+
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
+            [
+                'id' => 1,
+                'name' => 'inspire',
+                'status' => 'pending',
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
+            ],
+        ]]),
+        'POST /' => Http::response(['data' => [
+            'id' => 2,
+            'name' => 'new-command',
+            'status' => 'pending',
+            'grace_period' => 5,
+            'frequency' => 1440,
+            'custom_frequency' => null,
+            'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test2',
+        ]], 201),
+    ]);
+
+    TestKernel::registerScheduledTasks(function (Schedule $schedule) {
+        $schedule->command('inspire')->hourly();
+        $schedule->command('new-command')->daily();
+    });
+
+    $this->artisan('forge-heartbeats:sync')
+        ->expectsOutput('📝 Created 1 heartbeat(s):')
+        ->doesntExpectOutput('✏️  Updated 1 heartbeat(s):')
+        ->assertExitCode(0);
+
+    Http::assertNotSent(fn (Request $request) => $request->method() === 'PUT');
+    Http::assertSent(fn (Request $request) => $request->method() === 'POST'
+        && $request->data() === ['name' => 'new-command', 'grace_period' => 5, 'frequency' => 1440]);
+});
+
 it('handles empty scheduled tasks', function () {
     $this->fakeForgeApi([
         'GET /' => Http::response(['data' => []]),

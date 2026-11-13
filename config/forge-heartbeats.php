@@ -37,7 +37,7 @@ return [
      * Default values for heartbeats when not specified on individual tasks.
      */
     'defaults' => [
-        'grace_period' => env('FORGE_HEARTBEAT_GRACE_PERIOD', 5), // minutes
+        'grace_period' => (int) env('FORGE_HEARTBEAT_GRACE_PERIOD', 5), // minutes
         'frequency' => '0 * * * *', // hourly
     ],
 
