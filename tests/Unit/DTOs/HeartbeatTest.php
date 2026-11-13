@@ -71,3 +71,21 @@ it('can convert heartbeat to array', function () {
         'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/ghi789',
     ]);
 });
+
+it('accepts a null status and ping_url', function () {
+    $heartbeat = Heartbeat::fromArray([
+        'id' => '7',
+        'attributes' => [
+            'name' => 'new-heartbeat',
+            'status' => null,
+            'grace_period' => 5,
+            'frequency' => 60,
+            'custom_frequency' => null,
+            'ping_url' => null,
+        ],
+    ]);
+
+    expect($heartbeat->status)->toBeNull();
+    expect($heartbeat->pingUrl)->toBeNull();
+    expect($heartbeat->toArray())->toMatchArray(['status' => null, 'ping_url' => null]);
+});

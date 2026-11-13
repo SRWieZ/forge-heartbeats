@@ -3,6 +3,7 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
+use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 use SRWieZ\ForgeHeartbeats\Enums\HeartbeatStatus;
 use SRWieZ\ForgeHeartbeats\Http\Client\FrequencyEnum;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
@@ -48,8 +49,7 @@ class ListCommand extends Command
 
             $rows = [];
             foreach ($matchResult['matched'] as $match) {
-                $status = HeartbeatStatus::tryFrom($match['heartbeat']->status);
-                $statusDisplay = $status?->displayText() ?? '❓ ' . ucfirst($match['heartbeat']->status);
+                $statusDisplay = $this->statusDisplay($match['heartbeat']);
 
                 // Check if task and heartbeat are synced
                 $isSynced = $this->isTaskSynced($match['task'], $match['heartbeat']);
@@ -89,8 +89,7 @@ class ListCommand extends Command
 
             $rows = [];
             foreach ($matchResult['orphaned_heartbeats'] as $heartbeat) {
-                $status = HeartbeatStatus::tryFrom($heartbeat->status);
-                $statusDisplay = $status?->displayText() ?? '❓ ' . ucfirst($heartbeat->status);
+                $statusDisplay = $this->statusDisplay($heartbeat);
 
                 $rows[] = [$heartbeat->name, $statusDisplay, '🗑️  Orphaned'];
             }
@@ -114,6 +113,14 @@ class ListCommand extends Command
         // Footer message
         $this->newLine();
         $this->line('<fg=gray>Run </><fg=blue>php artisan forge-heartbeats:sync</><fg=gray> to synchronize your schedule with Forge</>');
+    }
+
+    private function statusDisplay(Heartbeat $heartbeat): string
+    {
+        // Forge may return a null status
+        $status = $heartbeat->status === null ? null : HeartbeatStatus::tryFrom($heartbeat->status);
+
+        return $status?->displayText() ?? '❓ ' . ucfirst($heartbeat->status ?? 'unknown');
     }
 
     private function isTaskSynced($task, $heartbeat): bool

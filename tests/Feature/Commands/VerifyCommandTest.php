@@ -74,3 +74,23 @@ it('uses the configured API base URL', function () {
         ->expectsOutput('  ✓ Successfully connected to Forge API')
         ->assertExitCode(0);
 });
+
+it('shows an unknown status for a sample heartbeat without one', function () {
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
+            [
+                'id' => 1,
+                'name' => 'test-heartbeat',
+                'status' => null,
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => null,
+            ],
+        ]]),
+    ]);
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('  ✓ Sample heartbeat: test-heartbeat (unknown)')
+        ->assertExitCode(0);
+});

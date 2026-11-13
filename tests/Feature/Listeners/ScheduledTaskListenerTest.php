@@ -6,6 +6,7 @@ use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('does not break schedule:run when closure tasks finish', function () {
@@ -99,4 +100,27 @@ it('still pings successful tasks when ping_on_failure is disabled', function () 
     event(new ScheduledBackgroundTaskFinished($event));
 
     expect(pingCount())->toBe(2);
+});
+
+it('skips the ping and logs a warning when the heartbeat has no ping URL', function () {
+    Log::spy();
+    Http::fake([
+        'https://forge.laravel.com/api/orgs/test-org/servers/12345/sites/67890/heartbeats/' => Http::response(['data' => [[
+            'id' => 1,
+            'name' => 'inspire',
+            'status' => null,
+            'grace_period' => 5,
+            'frequency' => 60,
+            'custom_frequency' => null,
+            'ping_url' => null,
+        ]]]),
+    ]);
+
+    $event = app(Schedule::class)->command('inspire')->hourly();
+    $event->exitCode = 0;
+
+    event(new ScheduledTaskFinished($event, 0.1));
+
+    Http::assertSentCount(1); // only the heartbeat list, no ping
+    Log::shouldHaveReceived('warning')->once()->withArgs(fn (string $message) => str_contains($message, 'has no ping URL'));
 });
