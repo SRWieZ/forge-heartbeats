@@ -95,6 +95,7 @@ class ScheduleAnalyzer
 
     private function isCommandEvent(Event $event): bool
     {
-        return str_contains($event->command, 'artisan') || ! empty($event->command);
+        // Closure and job tasks (CallbackEvent) have no command.
+        return ! empty($event->command);
     }
 }

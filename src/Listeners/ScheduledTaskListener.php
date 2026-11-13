@@ -33,6 +33,11 @@ class ScheduledTaskListener
 
     private function pingHeartbeat(Event $event, string $eventType): void
     {
+        // Closure and job tasks (CallbackEvent) have no command, so they are never monitored
+        if (empty($event->command)) {
+            return;
+        }
+
         // Get metadata for the event
         $metadata = TaskMetadataRegistry::getTaskMetadata($event);
 

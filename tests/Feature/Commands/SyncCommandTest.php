@@ -139,6 +139,34 @@ it('deletes orphaned heartbeats without keep-old flag', function () {
         && $request->url() === 'https://forge.laravel.com/api/orgs/test-org/servers/12345/sites/67890/heartbeats/2');
 });
 
+it('ignores closure tasks when syncing', function () {
+    $this->withoutDeprecationHandling();
+
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
+            [
+                'id' => 1,
+                'name' => 'inspire',
+                'status' => 'pending',
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
+            ],
+        ]]),
+    ]);
+
+    TestKernel::registerScheduledTasks(function (Schedule $schedule) {
+        $schedule->call(fn () => null)->hourly();
+        $schedule->command('inspire')->hourly();
+    });
+
+    $this->artisan('forge-heartbeats:sync')
+        ->expectsOutput('📋 Found 1 scheduled task(s) to monitor')
+        ->expectsOutput('✨ All heartbeats are already in sync')
+        ->assertExitCode(0);
+});
+
 it('handles empty scheduled tasks', function () {
     $this->fakeForgeApi([
         'GET /' => Http::response(['data' => []]),
