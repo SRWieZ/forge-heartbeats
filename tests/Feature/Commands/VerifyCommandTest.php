@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 it('can verify configuration and connectivity', function () {
@@ -93,4 +94,15 @@ it('shows an unknown status for a sample heartbeat without one', function () {
     $this->artisan('forge-heartbeats:verify')
         ->expectsOutput('  ✓ Sample heartbeat: test-heartbeat (unknown)')
         ->assertExitCode(0);
+});
+
+it('reports a friendly error when Forge cannot be reached', function () {
+    Http::fake(fn () => throw new ConnectionException('cURL error 6: Could not resolve host: forge.laravel.com'));
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('❌ Failed to connect to Forge API')
+        ->expectsOutput('  Could not reach https://forge.laravel.com/api: cURL error 6: Could not resolve host: forge.laravel.com')
+        ->expectsOutput('  Please check your network connection and FORGE_HEARTBEAT_BASE_URL')
+        ->doesntExpectOutput('✅ Configuration verified successfully')
+        ->assertExitCode(1);
 });
