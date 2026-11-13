@@ -119,8 +119,7 @@ class ListCommand extends Command
     private function isTaskSynced($task, $heartbeat): bool
     {
         // Check grace period
-        $expectedGracePeriod = $task->graceTimeInMinutes ?? config('forge-heartbeats.defaults.grace_period', 5);
-        if ($heartbeat->gracePeriod !== $expectedGracePeriod) {
+        if ($heartbeat->gracePeriod !== $task->getGracePeriod()) {
             return false;
         }
 
