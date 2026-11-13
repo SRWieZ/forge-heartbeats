@@ -21,20 +21,12 @@ enum FrequencyEnum: int
      */
     public static function fromCronExpression(string $cronExpression): self
     {
-        // Treat any once-per-day cron as DAILY.
-        // Example: 0 10 * * * (which is 10 am everyday)
-
-        // Also matches the following:
-        
-        // 0 8 * * *
-        // 0 12 * * *
-        // 0 12,18 * * *
-        // 0 8,10,12,20 * * *
-
-        if (preg_match('/^0 ((?:[01]?\d|2[0-3])(?:,(?:[01]?\d|2[0-3]))*) \* \* \*$/', $cronExpression) === 1) {
+        // A fixed minute (0-59) at one hour or a list of hours (0-23), every day: "30 8 * * *".
+        // Multi-hour schedules such as "0 12,18 * * *" are treated as DAILY too.
+        if (preg_match('/^[0-5]?\d (?:[01]?\d|2[0-3])(?:,(?:[01]?\d|2[0-3]))* \* \* \*$/', $cronExpression) === 1) {
             return self::DAILY;
         }
-        
+
         return match ($cronExpression) {
             '* * * * *' => self::EVERY_MINUTE,
             '*/5 * * * *' => self::EVERY_5_MINUTES,
