@@ -2,7 +2,7 @@
 
 return [
     /*
-     * Your Laravel Forge API token.
+     * Your Laravel Forge API token, with at least the server:view and site:manage-heartbeats scopes.
      * You can generate an API token in your Forge dashboard under API settings.
      */
     'api_token' => env('FORGE_API_TOKEN'),
@@ -44,8 +44,8 @@ return [
      * Default values for heartbeats when not specified on individual tasks.
      */
     'defaults' => [
-        'grace_period' => (int) env('FORGE_HEARTBEAT_GRACE_PERIOD', 5), // minutes
-        'frequency' => '0 * * * *', // hourly
+        // Minutes; Forge accepts 1, 2, 5, 10, 30 or 60.
+        'grace_period' => (int) env('FORGE_HEARTBEAT_GRACE_PERIOD', 5),
     ],
 
     /*
@@ -56,8 +56,9 @@ return [
     ],
 
     /*
-     * Cache settings for API responses.
-     * This helps reduce the number of API calls to Forge.
+     * Cache for the list of heartbeats, so tasks find their ping URL without calling the Forge API.
+     * It is kept until forge-heartbeats:sync or forge-heartbeats:list refreshes it.
+     * Leave the store empty to use your default cache store.
      */
     'cache' => [
         'store' => env('FORGE_HEARTBEAT_CACHE_STORE'),
@@ -68,6 +69,7 @@ return [
      * Forge API configuration.
      */
     'api' => [
+        // Change it to go through a proxy, for example. A trailing slash is fine.
         'base_url' => env('FORGE_HEARTBEAT_BASE_URL', 'https://forge.laravel.com/api'),
         'timeout' => 30, // seconds
     ],
