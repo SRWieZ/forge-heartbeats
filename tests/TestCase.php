@@ -15,6 +15,7 @@ use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\GetHeartb
 use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
 use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\PingHeartbeatRequest;
 use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\UpdateHeartbeatRequest;
+use SRWieZ\ForgeHeartbeats\Support\TaskMetadataRegistry;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -47,6 +48,7 @@ class TestCase extends Orchestra
     {
         $this->resetMockData();
         TestKernel::clearScheduledCommands();
+        TaskMetadataRegistry::clear();
 
         parent::tearDown();
     }

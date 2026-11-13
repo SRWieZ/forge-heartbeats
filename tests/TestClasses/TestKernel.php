@@ -10,6 +10,12 @@ class TestKernel extends IlluminateKernel
 {
     protected static array $registeredScheduleCommands = [];
 
+    /**
+     * Testbench already bootstrapped the application; re-running the bootstrappers
+     * would reload configuration and discard the values set in the TestCase.
+     */
+    protected $bootstrappers = [];
+
     public function schedule(Schedule $schedule)
     {
         collect(static::$registeredScheduleCommands)->each(
