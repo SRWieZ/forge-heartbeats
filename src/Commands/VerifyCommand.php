@@ -3,10 +3,9 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
-use Saloon\Exceptions\Request\RequestException;
+use Illuminate\Http\Client\RequestException;
 use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\ForgeHeartbeatsConnector;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeHeartbeatsClient;
 
 class VerifyCommand extends Command
 {
@@ -14,13 +13,13 @@ class VerifyCommand extends Command
 
     protected $description = 'Verify Forge heartbeats configuration and connectivity';
 
-    public function handle(ForgeHeartbeatsConnector $forgeConnector): int
+    public function handle(ForgeHeartbeatsClient $forgeClient): int
     {
         $this->info('🔍 Verifying Forge heartbeats configuration...');
 
         try {
             $this->checkConfiguration();
-            $this->checkConnectivity($forgeConnector);
+            $this->checkConnectivity($forgeClient);
 
             $this->info('✅ Configuration verified successfully');
 
@@ -60,17 +59,12 @@ class VerifyCommand extends Command
         $this->line("  ✓ Queue name: {$queueName}");
     }
 
-    private function checkConnectivity(ForgeHeartbeatsConnector $forgeConnector): void
+    private function checkConnectivity(ForgeHeartbeatsClient $forgeClient): void
     {
         $this->info('🌐 Testing Forge API connectivity...');
 
         try {
-            $request = new ListHeartbeatsRequest;
-            $response = $forgeConnector->send($request);
-
-            $response->throw();
-
-            $heartbeats = $request->createDtoFromResponse($response);
+            $heartbeats = $forgeClient->listHeartbeats();
             $count = count($heartbeats);
             $this->line('  ✓ Successfully connected to Forge API');
             $this->line("  ✓ Found {$count} existing heartbeat(s)");
@@ -79,7 +73,7 @@ class VerifyCommand extends Command
                 $this->line("  ✓ Sample heartbeat: {$heartbeats[0]->name} ({$heartbeats[0]->status})");
             }
         } catch (RequestException $e) {
-            $statusCode = $e->getResponse()->status();
+            $statusCode = $e->response->status();
 
             $this->error('❌ Failed to connect to Forge API');
 

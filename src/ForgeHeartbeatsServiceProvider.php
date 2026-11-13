@@ -15,7 +15,7 @@ use SRWieZ\ForgeHeartbeats\Commands\ListCommand;
 use SRWieZ\ForgeHeartbeats\Commands\SyncCommand;
 use SRWieZ\ForgeHeartbeats\Commands\VerifyCommand;
 use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\ForgeHeartbeatsConnector;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeHeartbeatsClient;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
 use SRWieZ\ForgeHeartbeats\Listeners\ScheduledTaskListener;
 use SRWieZ\ForgeHeartbeats\Support\HeartbeatManager;
@@ -39,13 +39,13 @@ class ForgeHeartbeatsServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(ForgeHeartbeatsConnector::class, function () {
+        $this->app->singleton(ForgeHeartbeatsClient::class, function () {
             // Only validate config in non-testing environments
             if (! app()->environment('testing')) {
                 $this->validateConfig();
             }
 
-            return new ForgeHeartbeatsConnector(
+            return new ForgeHeartbeatsClient(
                 apiToken: config('forge-heartbeats.api_token') ?: '',
                 organization: config('forge-heartbeats.organization') ?: '',
                 serverId: (int) config('forge-heartbeats.server_id', 0),
