@@ -67,7 +67,7 @@ class ForgeHeartbeatsClient
 
     protected function request(): PendingRequest
     {
-        $version = InstalledVersions::getVersion('srwiez/forge-heartbeats') ?? 'dev-main';
+        $version = InstalledVersions::getPrettyVersion('srwiez/forge-heartbeats') ?? 'dev-main';
 
         $apiUrl = rtrim(config('forge-heartbeats.api.base_url') ?: 'https://forge.laravel.com/api', '/');
 
