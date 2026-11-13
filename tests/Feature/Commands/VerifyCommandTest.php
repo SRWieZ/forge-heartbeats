@@ -1,8 +1,6 @@
 <?php
 
-use Saloon\Http\Faking\MockClient;
-use Saloon\Http\Faking\MockResponse;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
+use Illuminate\Support\Facades\Http;
 
 it('can verify configuration and connectivity', function () {
     // Explicitly set config values for this test
@@ -11,8 +9,8 @@ it('can verify configuration and connectivity', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
             [
                 'id' => 1,
                 'name' => 'test-heartbeat',
@@ -40,8 +38,8 @@ it('handles empty heartbeats response', function () {
     config(['forge-heartbeats.server_id' => 12345]);
     config(['forge-heartbeats.site_id' => 67890]);
 
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => []]),
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => []]),
     ]);
 
     $this->artisan('forge-heartbeats:verify')
@@ -51,5 +49,28 @@ it('handles empty heartbeats response', function () {
         ->expectsOutput('  ✓ Successfully connected to Forge API')
         ->expectsOutput('  ✓ Found 0 existing heartbeat(s)')
         ->expectsOutput('✅ Configuration verified successfully')
+        ->assertExitCode(0);
+});
+
+it('reports an invalid API token', function () {
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['message' => 'Unauthenticated.'], 401),
+    ]);
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('❌ Failed to connect to Forge API')
+        ->expectsOutput('  Status: 401 Unauthorized - Please check your FORGE_API_TOKEN')
+        ->assertExitCode(1);
+});
+
+it('uses the configured API base URL', function () {
+    config(['forge-heartbeats.api.base_url' => 'https://forge-proxy.test/api/']);
+
+    Http::fake([
+        'https://forge-proxy.test/api/orgs/test-org/servers/12345/sites/67890/heartbeats/' => Http::response(['data' => []]),
+    ]);
+
+    $this->artisan('forge-heartbeats:verify')
+        ->expectsOutput('  ✓ Successfully connected to Forge API')
         ->assertExitCode(0);
 });

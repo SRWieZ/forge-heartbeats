@@ -1,14 +1,12 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use Saloon\Http\Faking\MockClient;
-use Saloon\Http\Faking\MockResponse;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
+use Illuminate\Support\Facades\Http;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('can list heartbeats and tasks', function () {
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
             [
                 'id' => 1,
                 'name' => 'inspire',
@@ -40,8 +38,8 @@ it('can list heartbeats and tasks', function () {
 });
 
 it('handles empty heartbeats and tasks', function () {
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => []]),
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => []]),
     ]);
 
     $this->artisan('forge-heartbeats:list')

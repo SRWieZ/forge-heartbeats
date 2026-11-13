@@ -6,17 +6,13 @@ use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Cache;
 use SRWieZ\ForgeHeartbeats\DTOs\Heartbeat;
 use SRWieZ\ForgeHeartbeats\DTOs\ScheduledTask;
+use SRWieZ\ForgeHeartbeats\Http\Client\ForgeHeartbeatsClient;
 use SRWieZ\ForgeHeartbeats\Http\Client\FrequencyEnum;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\ForgeHeartbeatsConnector;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\CreateHeartbeatRequest;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\DeleteHeartbeatRequest;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\UpdateHeartbeatRequest;
 
 class HeartbeatManager
 {
     public function __construct(
-        private readonly ForgeHeartbeatsConnector $forgeConnector,
+        private readonly ForgeHeartbeatsClient $forgeClient,
         private readonly ScheduleAnalyzer $scheduleAnalyzer,
         private readonly TaskMatcher $taskMatcher
     ) {}
@@ -55,14 +51,7 @@ class HeartbeatManager
             $cacheStore->forget($cacheKey);
         }
 
-        return $cacheStore->rememberForever($cacheKey, function () {
-            $request = new ListHeartbeatsRequest;
-            $response = $this->forgeConnector->send($request);
-
-            $response->throw();
-
-            return $request->createDtoFromResponse($response);
-        });
+        return $cacheStore->rememberForever($cacheKey, fn () => $this->forgeClient->listHeartbeats());
     }
 
     /**
@@ -99,11 +88,7 @@ class HeartbeatManager
         // Delete orphaned heartbeats (unless keeping old ones)
         if (! $keepOldHeartbeats) {
             foreach ($matchResult['orphaned_heartbeats'] as $heartbeat) {
-                $request = new DeleteHeartbeatRequest($heartbeat->id);
-                $response = $this->forgeConnector->send($request);
-
-                $response->throw();
-
+                $this->forgeClient->deleteHeartbeat($heartbeat->id);
                 $deleted[] = $heartbeat;
             }
         }
@@ -136,18 +121,12 @@ class HeartbeatManager
 
         $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
-        $request = new CreateHeartbeatRequest(
+        return $this->forgeClient->createHeartbeat(
             name: $task->getDisplayName(),
             gracePeriod: $gracePeriod,
             frequency: $frequency->value,
             customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
-
-        $response = $this->forgeConnector->send($request);
-
-        $response->throw();
-
-        return $request->createDtoFromResponse($response);
     }
 
     private function updateHeartbeatForTask(ScheduledTask $task, Heartbeat $heartbeat): Heartbeat
@@ -156,19 +135,13 @@ class HeartbeatManager
 
         $frequency = FrequencyEnum::fromCronExpression($task->cronExpression);
 
-        $request = new UpdateHeartbeatRequest(
+        return $this->forgeClient->updateHeartbeat(
             heartbeatId: $heartbeat->id,
             name: $task->getDisplayName(),
             gracePeriod: $gracePeriod,
             frequency: $frequency->value,
             customFrequency: $frequency === FrequencyEnum::CUSTOM ? $task->cronExpression : null
         );
-
-        $response = $this->forgeConnector->send($request);
-
-        $response->throw();
-
-        return $request->createDtoFromResponse($response);
     }
 
     private function shouldUpdateHeartbeat(ScheduledTask $task, Heartbeat $heartbeat): bool

@@ -1,16 +1,13 @@
 <?php
 
 use Illuminate\Console\Scheduling\Schedule;
-use Saloon\Http\Faking\MockClient;
-use Saloon\Http\Faking\MockResponse;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\CreateHeartbeatRequest;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\ListHeartbeatsRequest;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\UpdateHeartbeatRequest;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use SRWieZ\ForgeHeartbeats\Tests\TestClasses\TestKernel;
 
 it('can sync scheduled tasks with heartbeats', function () {
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
             [
                 'id' => 1,
                 'name' => 'inspire',
@@ -21,7 +18,7 @@ it('can sync scheduled tasks with heartbeats', function () {
                 'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
             ],
         ]]),
-        CreateHeartbeatRequest::class => MockResponse::make(['data' => [
+        'POST /' => Http::response(['data' => [
             'id' => 2,
             'name' => 'new-command',
             'status' => 'pending',
@@ -30,7 +27,7 @@ it('can sync scheduled tasks with heartbeats', function () {
             'custom_frequency' => '0 0 * * *',
             'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test2',
         ]], 201),
-        UpdateHeartbeatRequest::class => MockResponse::make(['data' => [
+        'PUT /1' => Http::response(['data' => [
             'id' => 1,
             'name' => 'inspire',
             'status' => 'pending',
@@ -52,18 +49,26 @@ it('can sync scheduled tasks with heartbeats', function () {
         ->expectsOutput('🔄 Syncing with Forge...')
         ->expectsOutput('✅ Sync completed successfully')
         ->assertExitCode(0);
+
+    Http::assertSent(fn (Request $request) => $request->method() === 'POST'
+        && $request->hasHeader('Authorization', 'Bearer test-token')
+        && $request->data() === ['name' => 'new-command', 'grace_period' => 5, 'frequency' => 1440]);
+
+    Http::assertSent(fn (Request $request) => $request->method() === 'PUT'
+        && $request->hasHeader('Authorization', 'Bearer test-token')
+        && $request->data() === ['name' => 'inspire', 'grace_period' => 10, 'frequency' => 60]);
 });
 
 it('can sync with keep-old flag', function () {
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => [
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
             [
                 'id' => 1,
                 'name' => 'inspire',
                 'status' => 'pending',
                 'grace_period' => 5,
-                'frequency' => 0,
-                'custom_frequency' => '0 * * * *',
+                'frequency' => 60,
+                'custom_frequency' => null,
                 'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
             ],
             [
@@ -86,13 +91,57 @@ it('can sync with keep-old flag', function () {
         ->expectsOutput('🔍 Analyzing scheduled tasks...')
         ->expectsOutput('📋 Found 1 scheduled task(s) to monitor')
         ->expectsOutput('🔄 Syncing with Forge...')
+        ->expectsOutput('✨ All heartbeats are already in sync')
         ->expectsOutput('✅ Sync completed successfully')
         ->assertExitCode(0);
+
+    Http::assertNotSent(fn (Request $request) => $request->method() === 'DELETE');
+});
+
+it('deletes orphaned heartbeats without keep-old flag', function () {
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
+            [
+                'id' => 1,
+                'name' => 'inspire',
+                'status' => 'pending',
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test1',
+            ],
+            [
+                'id' => 2,
+                'name' => 'orphaned-task',
+                'status' => 'pending',
+                'grace_period' => 10,
+                'frequency' => 2,
+                'custom_frequency' => '0 0 * * *',
+                'ping_url' => 'https://forge.laravel.com/api/heartbeat/ping/test2',
+            ],
+        ]]),
+        'DELETE /2' => Http::response(null, 204),
+    ]);
+
+    TestKernel::registerScheduledTasks(function (Schedule $schedule) {
+        $schedule->command('inspire')->cron('0 * * * *');
+    });
+
+    $this->artisan('forge-heartbeats:sync')
+        ->expectsOutput('🔍 Analyzing scheduled tasks...')
+        ->expectsOutput('📋 Found 1 scheduled task(s) to monitor')
+        ->expectsOutput('🔄 Syncing with Forge...')
+        ->expectsOutput('🗑️  Deleted 1 heartbeat(s):')
+        ->expectsOutput('✅ Sync completed successfully')
+        ->assertExitCode(0);
+
+    Http::assertSent(fn (Request $request) => $request->method() === 'DELETE'
+        && $request->url() === 'https://forge.laravel.com/api/orgs/test-org/servers/12345/sites/67890/heartbeats/2');
 });
 
 it('handles empty scheduled tasks', function () {
-    MockClient::global([
-        ListHeartbeatsRequest::class => MockResponse::make(['data' => []]),
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => []]),
     ]);
 
     $this->artisan('forge-heartbeats:sync')

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use SRWieZ\ForgeHeartbeats\Events\HeartbeatPinged;
 use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
@@ -8,6 +9,10 @@ use SRWieZ\ForgeHeartbeats\Jobs\PingHeartbeatJob;
 beforeEach(function () {
     Event::fake();
     Log::spy();
+    Http::fake([
+        'forge.laravel.com/api/heartbeat/ping/invalid-url' => Http::response(null, 500),
+        'forge.laravel.com/api/heartbeat/ping/*' => Http::response(),
+    ]);
 });
 
 it('can ping heartbeat successfully', function () {
@@ -18,6 +23,9 @@ it('can ping heartbeat successfully', function () {
     );
 
     $job->handle();
+
+    Http::assertSent(fn ($request) => $request->method() === 'GET'
+        && $request->url() === 'https://forge.laravel.com/api/heartbeat/ping/test123');
 
     Event::assertDispatched(HeartbeatPinged::class, function ($event) {
         return $event->taskName === 'test-task' &&

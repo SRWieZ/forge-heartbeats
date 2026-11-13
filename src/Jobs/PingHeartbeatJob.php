@@ -7,8 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
 use SRWieZ\ForgeHeartbeats\Events\HeartbeatPinged;
-use SRWieZ\ForgeHeartbeats\Http\Integrations\Forge\Requests\Heartbeats\PingHeartbeatRequest;
 
 class PingHeartbeatJob implements ShouldQueue
 {
@@ -38,10 +38,7 @@ class PingHeartbeatJob implements ShouldQueue
 
     public function handle(): void
     {
-        $request = new PingHeartbeatRequest($this->pingUrl);
-        $response = $request->send();
-
-        $success = $response->successful();
+        $success = Http::get($this->pingUrl)->successful();
 
         if (! $success) {
             // If ping failed, throw an exception to trigger the failed() method and retries
