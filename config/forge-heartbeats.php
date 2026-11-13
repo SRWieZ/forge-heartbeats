@@ -61,7 +61,7 @@ return [
      * Forge API configuration.
      */
     'api' => [
-        'base_url' => 'https://forge.laravel.com/api/',
+        'base_url' => env('FORGE_HEARTBEAT_BASE_URL', 'https://forge.laravel.com/api'),
         'timeout' => 30, // seconds
     ],
 ];
