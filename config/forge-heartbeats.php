@@ -63,7 +63,5 @@ return [
     'api' => [
         'base_url' => 'https://forge.laravel.com/api/',
         'timeout' => 30, // seconds
-        'retry_attempts' => 3,
-        'retry_delay' => 1000, // milliseconds
     ],
 ];
