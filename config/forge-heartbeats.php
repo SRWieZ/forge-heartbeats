@@ -29,8 +29,9 @@ return [
     'queue' => [
         'connection' => env('FORGE_HEARTBEAT_QUEUE_CONNECTION'),
         'name' => env('FORGE_HEARTBEAT_QUEUE'),
-        'retry_after' => 60, // seconds
         'max_attempts' => 3,
+        // Seconds to wait before retrying a failed ping.
+        'backoff' => (int) env('FORGE_HEARTBEAT_QUEUE_BACKOFF', 60),
     ],
 
     /*
