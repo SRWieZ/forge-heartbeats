@@ -3,6 +3,7 @@
 namespace SRWieZ\ForgeHeartbeats\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use SRWieZ\ForgeHeartbeats\Http\Client\Exceptions\InvalidConfigException;
 use SRWieZ\ForgeHeartbeats\Http\Client\ForgeHeartbeatsClient;
@@ -86,6 +87,15 @@ class VerifyCommand extends Command
             } else {
                 $this->line("  Status: {$statusCode} - " . ($e->getMessage() ?: 'Unknown error'));
             }
+
+            throw new InvalidConfigException('Forge API connectivity check failed.');
+        } catch (ConnectionException $e) {
+            // DNS failures, timeouts and refused connections never get an HTTP response
+            $baseUrl = rtrim(config('forge-heartbeats.api.base_url') ?: 'https://forge.laravel.com/api', '/');
+
+            $this->error('❌ Failed to connect to Forge API');
+            $this->line("  Could not reach {$baseUrl}: {$e->getMessage()}");
+            $this->line('  Please check your network connection and FORGE_HEARTBEAT_BASE_URL');
 
             throw new InvalidConfigException('Forge API connectivity check failed.');
         }
