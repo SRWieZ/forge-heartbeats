@@ -56,6 +56,7 @@ If your code reads `PingHeartbeatJob::$retryAfter`, use `PingHeartbeatJob::$back
 - **Fixed: closures and jobs no longer break `schedule:run`.** In 1.x, a finished `Schedule::call()` or `Schedule::job()` task made `schedule:run` throw a `TypeError` and skip the tasks after it. They are now ignored, as `forge-heartbeats:sync` already did.
 - **Fixed: a grace period from `.env` no longer forces updates.** With `FORGE_HEARTBEAT_GRACE_PERIOD` set, 1.x updated every heartbeat on every sync and `forge-heartbeats:list` showed them as "Out of Sync".
 - **Fixed: sites with more than 30 heartbeats.** Forge returns heartbeats 30 per page, and 1.x only read the first page, so sync created duplicates and missed orphans past it. The package now reads every page.
+- **`Heartbeat::$status` and `Heartbeat::$pingUrl` can be `null`.** The Forge API allows both to be null, and 1.x threw a `TypeError` when that happened. If your code reads these properties, handle `null`. A task whose heartbeat has no ping URL is not pinged; the package logs a warning instead.
 - **User-Agent.** API requests now send `ForgeHeartbeats/v2.0.0` instead of `ForgeHeartbeats/2.0.0.0`.
 
 ### 6. Sync once after deploying

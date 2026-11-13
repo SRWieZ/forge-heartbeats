@@ -68,6 +68,13 @@ class ScheduledTaskListener
             return;
         }
 
+        // The Forge API allows a heartbeat without a ping URL
+        if ($heartbeat->pingUrl === null) {
+            Log::warning("Heartbeat [{$heartbeat->name}] has no ping URL, skipping the ping for task: {$scheduledTask->getDisplayName()}");
+
+            return;
+        }
+
         // Dispatch the ping job
         PingHeartbeatJob::dispatch(
             pingUrl: $heartbeat->pingUrl,

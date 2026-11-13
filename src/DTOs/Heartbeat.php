@@ -7,11 +7,11 @@ class Heartbeat
     public function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly string $status,
+        public readonly ?string $status,
         public readonly int $gracePeriod,
         public readonly int $frequency,
         public readonly ?string $customFrequency,
-        public readonly string $pingUrl
+        public readonly ?string $pingUrl
     ) {}
 
     public static function fromArray(array $data): self
@@ -21,11 +21,11 @@ class Heartbeat
         return new self(
             id: (int) $data['id'],
             name: $attributes['name'],
-            status: $attributes['status'],
+            status: $attributes['status'] ?? null,
             gracePeriod: $attributes['grace_period'],
             frequency: $attributes['frequency'],
             customFrequency: $attributes['custom_frequency'] ?? null,
-            pingUrl: $attributes['ping_url']
+            pingUrl: $attributes['ping_url'] ?? null
         );
     }
 

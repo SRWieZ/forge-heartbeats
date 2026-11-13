@@ -70,7 +70,7 @@ class VerifyCommand extends Command
             $this->line("  ✓ Found {$count} existing heartbeat(s)");
 
             if ($count > 0) {
-                $this->line("  ✓ Sample heartbeat: {$heartbeats[0]->name} ({$heartbeats[0]->status})");
+                $this->line("  ✓ Sample heartbeat: {$heartbeats[0]->name} (" . ($heartbeats[0]->status ?? 'unknown') . ')');
             }
         } catch (RequestException $e) {
             $statusCode = $e->response->status();

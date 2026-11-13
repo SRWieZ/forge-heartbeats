@@ -73,3 +73,38 @@ it('shows a heartbeat as synced when the grace period comes from .env', function
         ->doesntExpectOutputToContain('Out of Sync')
         ->assertExitCode(0);
 });
+
+it('lists heartbeats whose status is null', function () {
+    $this->withoutDeprecationHandling();
+
+    $this->fakeForgeApi([
+        'GET /' => Http::response(['data' => [
+            [
+                'id' => 1,
+                'name' => 'inspire',
+                'status' => null,
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => null,
+            ],
+            [
+                'id' => 2,
+                'name' => 'orphaned-task',
+                'status' => null,
+                'grace_period' => 5,
+                'frequency' => 60,
+                'custom_frequency' => null,
+                'ping_url' => null,
+            ],
+        ]]),
+    ]);
+
+    TestKernel::registerScheduledTasks(function (Schedule $schedule) {
+        $schedule->command('inspire')->hourly();
+    });
+
+    $this->artisan('forge-heartbeats:list')
+        ->expectsOutputToContain('❓ Unknown')
+        ->assertExitCode(0);
+});
